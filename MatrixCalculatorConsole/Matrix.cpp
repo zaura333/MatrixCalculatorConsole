@@ -43,10 +43,7 @@ Matrix& Matrix::operator=(const Matrix& toCopy)
 		return *this;
 	}
 
-	for (int i = 0; i < rows; i++) {
-		delete[] data[i];
-	}
-	delete[] data;
+	freeDataMemory();
 
 	rows = toCopy.rows;
 	columns = toCopy.columns;
@@ -81,6 +78,11 @@ Matrix Matrix::operator+(Matrix& mt) {
 }
 
 Matrix::~Matrix() {
+	freeDataMemory();
+}
+
+void Matrix::freeDataMemory() const
+{
 	for (int i = 0; i < rows; i++) {
 		delete[] data[i];
 	}

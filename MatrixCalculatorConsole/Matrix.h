@@ -32,4 +32,5 @@ private:
 	int rows, columns;
 	// Pointer do tablicy wierszy
 	double** data;
+	void freeDataMemory() const;
 };
