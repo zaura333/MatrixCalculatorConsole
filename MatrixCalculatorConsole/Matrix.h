@@ -6,19 +6,16 @@ class Matrix
 {
 public:
 	// Konstruktor
-	Matrix(int r, int c);
+	Matrix(int r = 0, int c = 0);
 	// Konstruktor z inicjalizacją
 	Matrix(int r, int c, double initial);
-	// Pobranie wartości elementu
-	double operator()(int x, int y) const;
+	// Pobranie wartości elementu, zwraca referencje do obiektu i umożliwia edytowanie, np.: M(2,3)=5
+	double& operator()(int x, int y) const;
 	// Wyświetlanie całej macierzy (https://learn.microsoft.com/en-us/cpp/standard-library/overloading-the-output-operator-for-your-own-classes?view=msvc-170)
 	friend std::ostream& operator<<(std::ostream& os, const Matrix& mt);
-	// edytowanie elementu
 	// dodawanie
 	// odejmowanie
 	// znajdź wyznacznik
-	// dodawanie
-	// odejmowanie
 	// mnożenie macierzy
 	// mnożenie przez liczbę
 	// transponowanie
@@ -26,9 +23,9 @@ public:
 	// destruktor?
 	~Matrix();
 private:
-	// dane
+	// Liczba wierszy/kolumn
 	int rows, columns;
-	// pointer do tablicy wierszy
+	// Pointer do tablicy wierszy
 	double** data;
 };
 

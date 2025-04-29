@@ -20,7 +20,7 @@ Matrix::Matrix(int r, int c, double initial) : rows(r), columns(c) {
 	}
 }
 
-double Matrix::operator()(int x, int y) const {
+double& Matrix::operator()(int x, int y) const {
 	if (x > rows || x <= 0 || y > columns || y <= 0) {
 		// Show that and error occured, terminate the program;
 		std::cerr << "Error: Invalid matrix indices (" << x << ", " << y << ")\n";
