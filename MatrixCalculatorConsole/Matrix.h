@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <stdexcept>
 #include <iostream>
+#include <ostream>
 class Matrix
 {
 public:
@@ -8,20 +9,10 @@ public:
 	Matrix(int r, int c);
 	// Konstruktor z inicjalizacją
 	Matrix(int r, int c, double initial);
-	// Wyświetlanie elementu
-	double operator()(int x, int y) const {
-		double val;
-		try {
-			val = data[x][y];
-		}
-		catch (const std::out_of_range& e) {
-			std::cout << "Index is out of bounds of the matrix: ";
-			e.what();
-		}
-
-		return val;
-	}
-	// wyświetlanie całej macierzy
+	// Pobranie wartości elementu
+	double operator()(int x, int y) const;
+	// Wyświetlanie całej macierzy (https://learn.microsoft.com/en-us/cpp/standard-library/overloading-the-output-operator-for-your-own-classes?view=msvc-170)
+	friend std::ostream& operator<<(std::ostream& os, const Matrix& mt);
 	// edytowanie elementu
 	// dodawanie
 	// odejmowanie
