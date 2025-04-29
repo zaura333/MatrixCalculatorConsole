@@ -95,6 +95,33 @@ Matrix Matrix::operator-(Matrix& mt)
 	return result;
 }
 
+Matrix Matrix::operator*(Matrix& mt)
+{
+	if (columns != mt.rows) {
+		throw std::invalid_argument("Number of rows of the first matrix must be equal to the number of columns of the second matrix.");
+	}
+
+	int common = columns;
+
+	Matrix result(rows, mt.columns);
+
+	for (int i = 1; i <= result.rows; i++) {
+		for (int j = 1; j <= result.columns; j++) {
+			double element = 0;
+
+			for (int k = 1; k <= common; k++) {
+				int a = this->operator()(i, k);
+				int b = mt(k, j);
+				element += (this->operator()(i, k) * mt(k, j));
+			}
+
+			result(i, j) = element;
+		}
+	}
+
+	return result;
+}
+
 Matrix::~Matrix() {
 	freeDataMemory();
 }
@@ -112,7 +139,7 @@ std::ostream& operator<<(std::ostream& os, const Matrix& mt)
 	os << "\n[\n";
 	for (int i = 1; i <= mt.rows; i++) {
 		for (int j = 1; j <= mt.columns; j++) {
-			os << ' ' << mt(i, j);
+			os << '\t' << mt(i, j);
 		}
 		os << '\n';
 	}

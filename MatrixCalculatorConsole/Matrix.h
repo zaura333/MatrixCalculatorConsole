@@ -21,12 +21,14 @@ public:
 	Matrix operator+(Matrix& mt);
 	// Odejmowanie macierzy
 	Matrix operator-(Matrix& mt);
-	// znajdź wyznacznik
-	// mnożenie macierzy
-	// mnożenie przez liczbę
+	// Liczenie wyznacznika macierzy
+	//double getDet();
+	// Mnożenie przez liczbę
+	Matrix operator*(Matrix& mt);
+	// Mnożenie macierzy
 	// transponowanie
 	// macierz odwrotna
-	// destruktor?
+	// Destruktor
 	~Matrix();
 private:
 	// Liczba wierszy/kolumn
