@@ -77,6 +77,24 @@ Matrix Matrix::operator+(Matrix& mt) {
 	return result;
 }
 
+Matrix Matrix::operator-(Matrix& mt)
+{
+	if (mt.rows != rows || mt.columns != columns) {
+		std::cerr << "Error: Matrix sizes must match.\n";
+		std::exit(-1);
+	}
+
+	Matrix result(rows, columns);
+
+	for (int i = 1; i <= rows; i++) {
+		for (int j = 1; j <= columns; j++) {
+			result(i, j) = this->operator()(i, j) - mt(i, j);
+		}
+	}
+
+	return result;
+}
+
 Matrix::~Matrix() {
 	freeDataMemory();
 }

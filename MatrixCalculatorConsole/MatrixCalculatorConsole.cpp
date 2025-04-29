@@ -11,6 +11,8 @@ int main()
     Matrix Test4(Test2);
     Matrix Test3 = Test + Test2;
     std::cout << Test3;
+    Matrix Test5 = Test2 - Test;
+    std::cout << Test5;
 
     return 0;
 }

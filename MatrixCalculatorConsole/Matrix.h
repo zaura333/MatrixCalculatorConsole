@@ -19,7 +19,8 @@ public:
 	Matrix& operator=(const Matrix& toCopy);
 	// Dodawanie macierzy
 	Matrix operator+(Matrix& mt);
-	// odejmowanie
+	// Odejmowanie macierzy
+	Matrix operator-(Matrix& mt);
 	// znajdź wyznacznik
 	// mnożenie macierzy
 	// mnożenie przez liczbę
