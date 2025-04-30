@@ -14,7 +14,7 @@ int main()
     Matrix Test5 = Test2 - Test;
     std::cout << Test5;
 
-    std::cout << "\nMnozenie test: ";
+    std::cout << "\nMnozenie macierzy: ";
     Matrix Skladnik1(2, 3);
     Skladnik1(1, 1) = 3;
     Skladnik1(1, 2) = 6;
@@ -37,6 +37,11 @@ int main()
 
     Matrix Iloczyn = Skladnik1 * Skladnik2;
     std::cout << "\n=\n" << Iloczyn;
+
+    std::cout << "\nMnozenie macierzy przez liczbe: ";
+    Matrix Iloczyn2 = 2 * Iloczyn;
+
+    std::cout << "\n" << Iloczyn2;
 
     return 0;
 }

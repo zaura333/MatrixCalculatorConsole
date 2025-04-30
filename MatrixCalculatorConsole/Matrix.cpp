@@ -95,6 +95,19 @@ Matrix Matrix::operator-(Matrix& mt)
 	return result;
 }
 
+Matrix Matrix::operator*(double n)
+{
+	Matrix result(rows, columns);
+
+	for (int i = 1; i <= rows; i++) {
+		for (int j = 1; j <= columns; j++) {
+			result(i, j) = this->operator()(i, j) * n;
+		}
+	}
+
+	return result;
+}
+
 Matrix Matrix::operator*(Matrix& mt)
 {
 	if (columns != mt.rows) {
@@ -146,4 +159,8 @@ std::ostream& operator<<(std::ostream& os, const Matrix& mt)
 	os << "]\n";
 	
 	return os;
+}
+
+Matrix operator*(double n, Matrix& mt) {
+	return mt * n;
 }

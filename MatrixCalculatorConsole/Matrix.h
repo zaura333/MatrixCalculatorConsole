@@ -24,8 +24,10 @@ public:
 	// Liczenie wyznacznika macierzy
 	//double getDet();
 	// Mnożenie przez liczbę
-	Matrix operator*(Matrix& mt);
+	Matrix operator*(double n);
+	friend Matrix operator*(double n, Matrix& mt);
 	// Mnożenie macierzy
+	Matrix operator*(Matrix& mt);
 	// transponowanie
 	// macierz odwrotna
 	// Destruktor
