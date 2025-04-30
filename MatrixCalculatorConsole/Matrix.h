@@ -21,21 +21,22 @@ public:
 	Matrix operator+(Matrix& mt);
 	// Odejmowanie macierzy
 	Matrix operator-(Matrix& mt);
-	// Liczenie wyznacznika macierzy
-	//double getDet();
 	// Mnożenie przez liczbę
 	Matrix operator*(double n);
 	friend Matrix operator*(double n, Matrix& mt);
 	// Mnożenie macierzy
 	Matrix operator*(Matrix& mt);
-	// transponowanie
-	// macierz odwrotna
+	// Transponowanie macierzy
+	Matrix transpose();
+	// Liczenie wyznacznika macierzy
+	// double getDet();
+	// Macierz odwrotna
+	// Matrix inverse();
 	// Destruktor
 	~Matrix();
 private:
-	// Liczba wierszy/kolumn
+	// Liczba wierszy/kolumn macierzy
 	int rows, columns;
-	// Pointer do tablicy wierszy
-	double** data;
-	void freeDataMemory() const;
+	double** data; // Pointer do tablicy wierszy
+	void freeDataMemory() const; // Funkcja usuwajca tablice i czyszacza dane macierzy.
 };

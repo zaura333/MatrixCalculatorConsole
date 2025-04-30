@@ -135,6 +135,19 @@ Matrix Matrix::operator*(Matrix& mt)
 	return result;
 }
 
+Matrix Matrix::transpose()
+{
+	Matrix result(columns, rows);
+
+	for (int i = 1; i <= rows; i++) {
+		for (int j = 1; j <= columns; j++) {
+			result(j, i) = this->operator()(i, j);
+		}
+	}
+
+	return result;
+}
+
 Matrix::~Matrix() {
 	freeDataMemory();
 }
