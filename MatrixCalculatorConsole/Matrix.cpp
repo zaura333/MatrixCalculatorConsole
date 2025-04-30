@@ -27,11 +27,7 @@ Matrix::Matrix(const Matrix& mt)
 
 double& Matrix::operator()(int x, int y) const {
 	if (x > rows || x <= 0 || y > columns || y <= 0) {
-		// Show that and error occured, terminate the program;
-		std::cerr << "Error: Invalid matrix indices (" << x << ", " << y << ")\n";
-		std::exit(-1); 
-		//throw std::out_of_range("Indices out of range of the matrix.");
-
+		throw std::out_of_range("Error: Indices out of bounds of the matrix.");
 	}
 
 	return data[x - 1][y - 1];
@@ -62,8 +58,7 @@ Matrix& Matrix::operator=(const Matrix& toCopy)
 
 Matrix Matrix::operator+(Matrix& mt) {
 	if (mt.rows != rows || mt.columns != columns) {
-		std::cerr << "Error: Matrix sizes must match.\n";
-		std::exit(-1);
+		throw std::invalid_argument("Error: Matrix sizes must match to perform addition.");
 	}
 
 	Matrix result(rows, columns);
@@ -80,8 +75,7 @@ Matrix Matrix::operator+(Matrix& mt) {
 Matrix Matrix::operator-(Matrix& mt)
 {
 	if (mt.rows != rows || mt.columns != columns) {
-		std::cerr << "Error: Matrix sizes must match.\n";
-		std::exit(-1);
+		throw std::invalid_argument("Error: Matrix sizes must match to perform subtraction.");
 	}
 
 	Matrix result(rows, columns);
@@ -111,7 +105,7 @@ Matrix Matrix::operator*(double n)
 Matrix Matrix::operator*(Matrix& mt)
 {
 	if (columns != mt.rows) {
-		throw std::invalid_argument("Number of rows of the first matrix must be equal to the number of columns of the second matrix.");
+		throw std::invalid_argument("Error: Number of rows of the first matrix must be equal to the number of columns of the second matrix.");
 	}
 
 	int common = columns;
