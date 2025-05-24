@@ -8,7 +8,7 @@ int main()
     // Tworzenie macierzy
     std::cout << "\nTworzenie macierzy o jednakowych wymiarach w celu prezentacji dzialan dodawania i odejmowania.\n";
     std::cout << "Tworzenie macierzy A (2x3)...\n";
-    Matrix A(2, 3);
+    Matrix<double> A(2, 3);
     std::cout << "Wypelnianie macierzy poprzez modyfikacje poszczegolnych elementow, np. A(1, 1) = 3...\n";
     try {
         A(1, 1) = 3;
@@ -25,11 +25,11 @@ int main()
     std::cout << "Uzupelniona macierz A:\nA\n=\n" << A << '\n';
 
     std::cout << "\nTworzenie macierzy B (2x3) zainicjalizowej wartoscia 5.2...\n";
-    Matrix B(2, 3, 5.2);
+    Matrix<double> B(2, 3, 5.2);
     std::cout << "Uzupelniona macierz B:\nB\n=\n" << B << '\n';
 
     std::cout << "\n**DODAWANIE MACIERZY**";
-    Matrix Added;
+    Matrix<double> Added;
     try {
         Added = A + B;
     }
@@ -42,7 +42,7 @@ int main()
 
     std::cout << "\n**ODEJMOWANIE MACIERZY**";
 
-    Matrix Subtracted;
+    Matrix<double> Subtracted;
     try {
         Subtracted = A - B;
     }
@@ -54,16 +54,16 @@ int main()
     
 
     std::cout << "\n**MNOZENIE MACIERZY PRZEZ LICZBE**";
-    Matrix NumMultiplied = 4.3 * A;
+    Matrix<double> NumMultiplied = 4.3 * A;
     std::cout << "\n4.3 * A\n = \n" << NumMultiplied << '\n';
 
     std::cout << "\nTworzenie macierzy o odpowiednich wymiarach by pomnozyc ja z macierza A...";
     std::cout << "\nTworzenie macierzy C (3, 5) zainicjalizowej wartoscia 2...\n";
-    Matrix C(3, 5, 2);
+    Matrix<double> C(3, 5, 2);
     std::cout << "Uzupelniona macierz C:\nC\n=\n" << C << '\n';
 
     std::cout << "\n**MNOZENIE MACIERZY PRZEZ MACIERZ**";
-    Matrix MtMultiplied;
+    Matrix<double> MtMultiplied;
     try {
         MtMultiplied = A * C;
     }
@@ -74,7 +74,7 @@ int main()
     std::cout << "\nA * C\n = \n" << MtMultiplied << '\n';
 
     std::cout << "\n**TRANSPONOWANIE MACIERZY**";
-    Matrix TransposedA = A.transpose();
+    Matrix<double> TransposedA = A.transpose();
     std::cout << "\nTransponowana macierz A:\n" << TransposedA;
 
     return 0;

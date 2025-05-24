@@ -1,18 +1,20 @@
 #include "Matrix.h"
 
-Matrix::Matrix(int r, int c) : rows(r), columns(c) {
-	data = new double* [rows];
+template<typename T>
+Matrix<T>::Matrix(int r, int c) : rows(r), columns(c) {
+	data = new T* [rows];
 
 	for (int i = 0; i < rows; i++) {
-		data[i] = new double[columns];
+		data[i] = new T[columns];
 	}
 }
 
-Matrix::Matrix(int r, int c, double initial) : rows(r), columns(c) {
-	data = new double* [rows];
+template<typename T>
+Matrix<T>::Matrix(int r, int c, T initial) : rows(r), columns(c) {
+	data = new T* [rows];
 
 	for (int i = 0; i < rows; i++) {
-		data[i] = new double[columns];
+		data[i] = new T[columns];
 
 		for (int j = 0; j < columns; j++) {
 			data[i][j] = initial;
@@ -20,12 +22,14 @@ Matrix::Matrix(int r, int c, double initial) : rows(r), columns(c) {
 	}
 }
 
-Matrix::Matrix(const Matrix& mt)
+template<typename T>
+Matrix<T>::Matrix(const Matrix<T>& mt)
 {
 	*this = mt;
 }
 
-double& Matrix::operator()(int x, int y) const {
+template<typename T>
+T& Matrix<T>::operator()(int x, int y) const {
 	if (x > rows || x <= 0 || y > columns || y <= 0) {
 		throw std::out_of_range("Error: Indices out of bounds of the matrix.");
 	}
@@ -33,7 +37,8 @@ double& Matrix::operator()(int x, int y) const {
 	return data[x - 1][y - 1];
 }
 
-Matrix& Matrix::operator=(const Matrix& toCopy)
+template<typename T>
+Matrix<T>& Matrix<T>::operator=(const Matrix<T>& toCopy)
 {
 	if (this == &toCopy) {
 		return *this;
@@ -44,10 +49,10 @@ Matrix& Matrix::operator=(const Matrix& toCopy)
 	rows = toCopy.rows;
 	columns = toCopy.columns;
 
-	data = new double* [rows];
+	data = new T* [rows];
 
     for (int i = 0; i < rows; i++) {
-        data[i] = new double[columns];
+        data[i] = new T[columns];
         for (int j = 0; j < columns; j++) {
             data[i][j] = toCopy.data[i][j];
         }
@@ -56,7 +61,8 @@ Matrix& Matrix::operator=(const Matrix& toCopy)
 	return *this;
 }
 
-Matrix Matrix::operator+(Matrix& mt) {
+template<typename T>
+Matrix<T> Matrix<T>::operator+(Matrix<T>& mt) {
 	if (mt.rows != rows || mt.columns != columns) {
 		throw std::invalid_argument("Error: Matrix sizes must match to perform addition.");
 	}
@@ -72,7 +78,8 @@ Matrix Matrix::operator+(Matrix& mt) {
 	return result;
 }
 
-Matrix Matrix::operator-(Matrix& mt)
+template<typename T>
+Matrix<T> Matrix<T>::operator-(Matrix<T>& mt)
 {
 	if (mt.rows != rows || mt.columns != columns) {
 		throw std::invalid_argument("Error: Matrix sizes must match to perform subtraction.");
@@ -89,7 +96,8 @@ Matrix Matrix::operator-(Matrix& mt)
 	return result;
 }
 
-Matrix Matrix::operator*(double n)
+template<typename T>
+Matrix<T> Matrix<T>::operator*(T n)
 {
 	Matrix result(rows, columns);
 
@@ -102,7 +110,8 @@ Matrix Matrix::operator*(double n)
 	return result;
 }
 
-Matrix Matrix::operator*(Matrix& mt)
+template<typename T>
+Matrix<T> Matrix<T>::operator*(Matrix<T>& mt)
 {
 	if (columns != mt.rows) {
 		throw std::invalid_argument("Error: Number of rows of the first matrix must be equal to the number of columns of the second matrix.");
@@ -114,7 +123,7 @@ Matrix Matrix::operator*(Matrix& mt)
 
 	for (int i = 1; i <= result.rows; i++) {
 		for (int j = 1; j <= result.columns; j++) {
-			double element = 0;
+			T element = 0;
 
 			for (int k = 1; k <= common; k++) {
 				int a = this->operator()(i, k);
@@ -129,7 +138,8 @@ Matrix Matrix::operator*(Matrix& mt)
 	return result;
 }
 
-Matrix Matrix::transpose()
+template<typename T>
+Matrix<T> Matrix<T>::transpose()
 {
 	Matrix result(columns, rows);
 
@@ -142,11 +152,13 @@ Matrix Matrix::transpose()
 	return result;
 }
 
-Matrix::~Matrix() {
+template<typename T>
+Matrix<T>::~Matrix() {
 	freeDataMemory();
 }
 
-void Matrix::freeDataMemory() const
+template<typename T>
+void Matrix<T>::freeDataMemory() const
 {
 	for (int i = 0; i < rows; i++) {
 		delete[] data[i];
@@ -154,7 +166,8 @@ void Matrix::freeDataMemory() const
 	delete[] data;
 }
 
-std::ostream& operator<<(std::ostream& os, const Matrix& mt)
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const Matrix<T>& mt)
 {
 	os << "\n[\n";
 	for (int i = 1; i <= mt.rows; i++) {
@@ -168,6 +181,7 @@ std::ostream& operator<<(std::ostream& os, const Matrix& mt)
 	return os;
 }
 
-Matrix operator*(double n, Matrix& mt) {
+template<typename T>
+Matrix<T> operator*(T n, Matrix<T>& mt) {
 	return mt * n;
 }

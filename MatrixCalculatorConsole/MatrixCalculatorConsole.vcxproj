@@ -129,9 +129,11 @@
   <ItemGroup>
     <ClCompile Include="Matrix.cpp" />
     <ClCompile Include="MatrixCalculatorConsole.cpp" />
+    <ClCompile Include="MatrixExceptions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Matrix.h" />
+    <ClInclude Include="MatrixExceptions.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
