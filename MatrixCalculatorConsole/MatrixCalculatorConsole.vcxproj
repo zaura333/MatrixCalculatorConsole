@@ -127,7 +127,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Matrix.cpp" />
     <ClCompile Include="MatrixCalculatorConsole.cpp" />
     <ClCompile Include="MatrixExceptions.cpp" />
   </ItemGroup>

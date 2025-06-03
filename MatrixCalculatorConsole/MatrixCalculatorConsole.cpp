@@ -1,5 +1,6 @@
 ﻿#include <iostream>
 #include "Matrix.h"
+#include "MatrixExceptions.h"
 
 int main()
 {
@@ -33,7 +34,7 @@ int main()
     try {
         Added = A + B;
     }
-    catch (std::invalid_argument e) {
+    catch (Matrix_size_not_match e) {
         std::cout << "\nBlad podczas dodawania macierzy:\n" << e.what();
         return -1;
     }
@@ -46,7 +47,7 @@ int main()
     try {
         Subtracted = A - B;
     }
-    catch (std::invalid_argument e) {
+    catch (Matrix_size_not_match e) {
         std::cout << "\nBlad podczas odejmowania macierzy:\n" << e.what();
         return -1;
     }
@@ -67,7 +68,7 @@ int main()
     try {
         MtMultiplied = A * C;
     }
-    catch (std::invalid_argument e) {
+    catch (Matrix_size_not_match e) {
         std::cout << "\nBlad podczas mnozenia macierzy:\n" << e.what();
         return -1;
     }

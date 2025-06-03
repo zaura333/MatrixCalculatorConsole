@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <ostream>
+#include "MatrixExceptions.h"
 
 template<typename T>
 class Matrix
@@ -109,7 +110,7 @@ Matrix<T>& Matrix<T>::operator=(const Matrix<T>& toCopy)
 template<typename T>
 Matrix<T> Matrix<T>::operator+(Matrix<T>& mt) {
 	if (mt.rows != rows || mt.columns != columns) {
-		throw std::invalid_argument("Error: Matrix sizes must match to perform addition.");
+		throw Matrix_size_not_match("Error: Matrix sizes must match to perform addition.");
 	}
 
 	Matrix result(rows, columns);
@@ -127,7 +128,7 @@ template<typename T>
 Matrix<T> Matrix<T>::operator-(Matrix<T>& mt)
 {
 	if (mt.rows != rows || mt.columns != columns) {
-		throw std::invalid_argument("Error: Matrix sizes must match to perform subtraction.");
+		throw Matrix_size_not_match("Error: Matrix sizes must match to perform subtraction.");
 	}
 
 	Matrix result(rows, columns);
@@ -159,7 +160,7 @@ template<typename T>
 Matrix<T> Matrix<T>::operator*(Matrix<T>& mt)
 {
 	if (columns != mt.rows) {
-		throw std::invalid_argument("Error: Number of rows of the first matrix must be equal to the number of columns of the second matrix.");
+		throw Matrix_size_not_match("Error: Number of rows of the first matrix must be equal to the number of columns of the second matrix.");
 	}
 
 	int common = columns;
