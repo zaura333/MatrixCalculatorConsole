@@ -44,6 +44,7 @@ private:
 	int rows, columns;
 	T** data; // Pointer do tablicy wierszy
 	void freeDataMemory() const; // Funkcja usuwajca tablice i czyszacza dane macierzy.
+	void copyData(const Matrix<T>& mt);
 };
 
 template<typename T>
@@ -71,7 +72,9 @@ Matrix<T>::Matrix(int r, int c, T initial) : rows(r), columns(c) {
 template<typename T>
 Matrix<T>::Matrix(const Matrix<T>& mt)
 {
-	*this = mt;
+	this->rows = mt.rows;
+	this->columns = mt.columns;
+	copyData(mt);
 }
 
 template<typename T>
@@ -92,17 +95,7 @@ Matrix<T>& Matrix<T>::operator=(const Matrix<T>& toCopy)
 
 	freeDataMemory();
 
-	rows = toCopy.rows;
-	columns = toCopy.columns;
-
-	data = new T * [rows];
-
-	for (int i = 0; i < rows; i++) {
-		data[i] = new T[columns];
-		for (int j = 0; j < columns; j++) {
-			data[i][j] = toCopy.data[i][j];
-		}
-	}
+	copyData(toCopy);
 
 	return *this;
 }
@@ -213,6 +206,22 @@ void Matrix<T>::freeDataMemory() const
 }
 
 template<typename T>
+inline void Matrix<T>::copyData(const Matrix<T>& mt)
+{
+	rows = mt.rows;
+	columns = mt.columns;
+
+	data = new T * [rows];
+
+	for (int i = 0; i < rows; i++) {
+		data[i] = new T[columns];
+		for (int j = 0; j < columns; j++) {
+			data[i][j] = mt.data[i][j];
+		}
+	}
+}
+
+template<typename T>
 std::ostream& operator<<(std::ostream& os, const Matrix<T>& mt)
 {
 	os << "\n[\n";
@@ -227,7 +236,8 @@ std::ostream& operator<<(std::ostream& os, const Matrix<T>& mt)
 	return os;
 }
 
-template<typename T>
-Matrix<T> operator*(T n, Matrix<T>& mt) {
+template<typename U>
+inline Matrix<U> operator*(U n, Matrix<U>& mt)
+{
 	return mt * n;
 }

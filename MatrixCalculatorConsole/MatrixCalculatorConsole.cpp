@@ -78,5 +78,9 @@ int main()
     Matrix<double> TransposedA = A.transpose();
     std::cout << "\nTransponowana macierz A:\n" << TransposedA;
 
+    std::cout << "\n**KOPIOWANIE MACIERZY KONSTRUKTOREM KOPIUJĄCYM**";
+    Matrix<double> CopiedA(TransposedA);
+    std::cout << "\nSkopiowana transponowana macierz A:\n" << CopiedA;
+
     return 0;
 }
