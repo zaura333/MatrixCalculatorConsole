@@ -2,12 +2,20 @@
 #include <stdexcept>
 #include <iostream>
 #include <ostream>
+#include <complex>
+#include <type_traits>
 #include "MatrixExceptions.h"
 
 template<typename T>
 class Matrix
 {
 public:
+	static_assert(
+        std::is_same_v<T, int> ||
+        std::is_same_v<T, double> ||
+        std::is_same_v<T, std::complex<double>>,
+        "Matrix<T>: T może być tylko int, double lub std::complex<double>"
+    );
 	// Konstruktor
 	Matrix(int r = 0, int c = 0);
 	// Konstruktor z inicjalizacją
@@ -33,10 +41,8 @@ public:
 	Matrix<T> operator*(Matrix& mt);
 	// Transponowanie macierzy
 	Matrix<T> transpose();
-	// Liczenie wyznacznika macierzy
-	// T getDet();
-	// Macierz odwrotna
-	// Matrix inverse();
+	// Liczenie wyznacznika
+	T getDet();
 	// Destruktor
 	~Matrix();
 private:
@@ -190,6 +196,45 @@ Matrix<T> Matrix<T>::transpose()
 
 	return result;
 }
+
+template<typename T>
+T Matrix<T>::getDet()
+{
+	if (rows != columns) {
+		throw Matrix_size_not_match("Error: Matrix must be square to calculate determinant.");
+	}
+
+	int n = rows;
+
+	if (n == 1) {
+		return (*this)(1, 1);
+	}
+
+	if (n == 2) {
+		return (*this)(1, 1) * (*this)(2, 2) - (*this)(1, 2) * (*this)(2, 1);
+	}
+
+	T res = 0;
+	for (int col = 1; col <= n; ++col) {
+		// Tworzenie podmacierzy (bez pierwszego wiersza i kolumny col)
+		Matrix<T> subMat(n - 1, n - 1);
+
+		for (int i = 2; i <= n; ++i) {
+			int subCol = 1;
+			for (int j = 1; j <= n; ++j) {
+				if (j == col) continue;
+				subMat(i - 1, subCol) = (*this)(i, j);
+				++subCol;
+			}
+		}
+
+		int sign = ((col % 2) == 1) ? 1 : -1;
+		res += sign * (*this)(1, col) * subMat.getDet();
+	}
+
+	return res;
+}
+
 
 template<typename T>
 Matrix<T>::~Matrix() {
