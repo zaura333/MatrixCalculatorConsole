@@ -43,6 +43,16 @@ private:
 	static std::size_t checkedSize(int r, int c);
 };
 
+// ---------------------------------------------------------------------------
+// Deduction guides (CTAD, C++17)
+// Domyslnie T jest wywnioskowane z argumentu `initial`: Matrix(2, 3, 1.5) -> Matrix<double>.
+// Ponizszy przewodnik obsluguje przypadek, w ktorym domyslne wnioskowanie by zawiodlo.
+// Bez wartosci poczatkowej (Matrix(2, 3)) T nie da sie wywnioskowac - trzeba podac je jawnie: Matrix<int>(2, 3).
+// ---------------------------------------------------------------------------
+
+// float nie jest dozwolonym T (static_assert) -> dedukcja na double.
+Matrix(int, int, float) -> Matrix<double>;
+
 template<typename T>
 Matrix<T>::Matrix(int r, int c)
 	: rows(r), columns(c), data(checkedSize(r, c)) {

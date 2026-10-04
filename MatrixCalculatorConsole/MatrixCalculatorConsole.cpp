@@ -150,5 +150,10 @@ int main()
     }
     std::cout << "\ndet(M) = " << wyznacznik << '\n';
 
+    // CTAD: typ elementow wywnioskowany przez kompilator
+    Matrix Wnioskowana(2, 2, 1.5);   // Matrix<double>
+    Matrix Calkowita(2, 2, 7);       // Matrix<int>
+    std::cout << "\nCTAD: " << Wnioskowana << Calkowita << '\n';
+
     return 0;
 }

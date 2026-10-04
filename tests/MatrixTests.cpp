@@ -218,6 +218,33 @@ TYPED_TEST(MatrixTyped, SizeFollowsTranspose) {
 	EXPECT_EQ(c, 2);
 }
 
+// ---------------------------------------------------------------------------
+// CTAD
+// ---------------------------------------------------------------------------
+TEST(MatrixDeduction, DeducesTypeFromInitialValue) {
+	static_assert(std::is_same_v<decltype(Matrix(2, 3, 7)), Matrix<int>>);
+	static_assert(std::is_same_v<decltype(Matrix(2, 3, 1.5)), Matrix<double>>);
+	static_assert(std::is_same_v<decltype(Matrix(2, 3, std::complex<double>{1, 2})),
+		Matrix<std::complex<double>>>);
+
+	Matrix m(2, 3, 7);
+	EXPECT_EQ(m(2, 3), 7);
+}
+
+TEST(MatrixDeduction, FloatIsPromotedToDouble) {
+	static_assert(std::is_same_v<decltype(Matrix(2, 3, 1.5f)), Matrix<double>>);
+
+	Matrix m(1, 1, 1.5f);
+	EXPECT_DOUBLE_EQ(m(1, 1), 1.5);
+}
+
+TEST(MatrixDeduction, CopyKeepsType) {
+	const Matrix<int> original(2, 2, 4);
+	Matrix copy(original);
+	static_assert(std::is_same_v<decltype(copy), Matrix<int>>);
+	EXPECT_EQ(copy(2, 2), 4);
+}
+
 TEST(MatrixOutput, PrintsDoubles) {
 	auto m = makeMatrix<double>(1, 2, {1.5, -2.25});
 	std::ostringstream os;
