@@ -204,6 +204,20 @@ TEST(MatrixOutput, PrintsRowsSeparatedByNewlines) {
 	EXPECT_EQ(os.str(), "\n[\n\t1\t2\n\t3\t4\n]\n");
 }
 
+TYPED_TEST(MatrixTyped, SizeReturnsRowsAndColumns) {
+	const Matrix<TypeParam> m(2, 5);
+	const auto [r, c] = m.size();
+	EXPECT_EQ(r, 2);
+	EXPECT_EQ(c, 5);
+}
+
+TYPED_TEST(MatrixTyped, SizeFollowsTranspose) {
+	const Matrix<TypeParam> m(2, 5);
+	const auto [r, c] = m.transpose().size();
+	EXPECT_EQ(r, 5);
+	EXPECT_EQ(c, 2);
+}
+
 TEST(MatrixOutput, PrintsDoubles) {
 	auto m = makeMatrix<double>(1, 2, {1.5, -2.25});
 	std::ostringstream os;

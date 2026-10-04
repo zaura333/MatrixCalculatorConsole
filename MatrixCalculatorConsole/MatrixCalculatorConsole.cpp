@@ -136,6 +136,9 @@ int main()
     }
 
     std::cout << "\nM\n = \n" << M << '\n';
+
+    const auto [mRows, mCols] = M.size();
+    std::cout << "Wymiary M: " << mRows << "x" << mCols << '\n';
     int wyznacznik;
 
     try {

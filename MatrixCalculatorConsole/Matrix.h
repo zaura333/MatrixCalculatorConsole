@@ -6,6 +6,7 @@
 #include <type_traits>
 #include <vector>
 #include <cstddef>
+#include <utility>
 #include "MatrixExceptions.h"
 
 template<typename T>
@@ -32,6 +33,7 @@ public:
 	[[nodiscard]] Matrix<T> operator*(const Matrix& mt) const;
 	[[nodiscard]] Matrix<T> transpose() const;
 	[[nodiscard]] T getDet() const;
+	[[nodiscard]] std::pair<int, int> size() const noexcept;
 
 private:
 	int rows, columns;
@@ -191,6 +193,12 @@ T Matrix<T>::getDet() const
 }
 
 template<typename T>
+std::pair<int, int> Matrix<T>::size() const noexcept
+{
+	return { rows, columns };
+}
+
+template<typename T>
 std::size_t Matrix<T>::index(int x, int y) const noexcept
 {
 	return static_cast<std::size_t>(x - 1) * static_cast<std::size_t>(columns)
@@ -200,9 +208,10 @@ std::size_t Matrix<T>::index(int x, int y) const noexcept
 template<typename T>
 std::ostream& operator<<(std::ostream& os, const Matrix<T>& mt)
 {
+	const auto [r, c] = mt.size();
 	os << "\n[\n";
-	for (int i = 1; i <= mt.rows; i++) {
-		for (int j = 1; j <= mt.columns; j++) {
+	for (int i = 1; i <= r; i++) {
+		for (int j = 1; j <= c; j++) {
 			os << '\t';
 			if constexpr (std::is_same_v<T, std::complex<double>>) {
 				// zespolone: a+bi zamiast domyslnego (a,b)
