@@ -3,6 +3,9 @@
 #include <initializer_list>
 #include <sstream>
 #include <stdexcept>
+#include <type_traits>
+#include <utility>
+#include <vector>
 #include "Matrix.h"
 
 // ---------------------------------------------------------------------------
@@ -201,3 +204,74 @@ TEST(MatrixOutput, PrintsRowsSeparatedByNewlines) {
 	EXPECT_EQ(os.str(), "\n[\n\t1\t2\n\t3\t4\n]\n");
 }
 
+// ---------------------------------------------------------------------------
+// Kopiowanie i przenoszenie (krok 10: Rule of Zero, std::vector)
+// ---------------------------------------------------------------------------
+TYPED_TEST(MatrixTyped, NewMatrixIsZeroFilled) {
+	Matrix<TypeParam> m(5, 3);
+	for (int i = 1; i <= 5; ++i) {
+		for (int j = 1; j <= 3; ++j) {
+			EXPECT_EQ(m(i, j), TypeParam{}) << "non-zero element at (" << i << ", " << j << ")";
+		}
+	}
+}
+
+TYPED_TEST(MatrixTyped, SpecialMembersAreGeneratedByCompiler) {
+	EXPECT_TRUE(std::is_copy_constructible_v<Matrix<TypeParam>>);
+	EXPECT_TRUE(std::is_copy_assignable_v<Matrix<TypeParam>>);
+	EXPECT_TRUE(std::is_nothrow_move_constructible_v<Matrix<TypeParam>>);
+	EXPECT_TRUE(std::is_nothrow_move_assignable_v<Matrix<TypeParam>>);
+}
+
+TYPED_TEST(MatrixTyped, CopyConstructorMakesIndependentCopy) {
+	auto a = makeMatrix<TypeParam>(2, 2, {1, 2, 3, 4});
+	Matrix<TypeParam> b(a);
+	b(1, 1) = TypeParam{9};
+	expectMatrixEq<TypeParam>(a, 2, 2, {1, 2, 3, 4});   // oryginal bez zmian
+	expectMatrixEq<TypeParam>(b, 2, 2, {9, 2, 3, 4});
+}
+
+TYPED_TEST(MatrixTyped, CopyAssignmentMakesIndependentCopyAndChangesSize) {
+	auto a = makeMatrix<TypeParam>(2, 2, {1, 2, 3, 4});
+	Matrix<TypeParam> b(3, 3, TypeParam{7});
+	b = a;
+	expectMatrixEq<TypeParam>(b, 2, 2, {1, 2, 3, 4});
+	EXPECT_THROW(b(3, 3), IndexOutOfBoundsException);   // stary rozmiar 3x3 nie obowiazuje
+	b(2, 2) = TypeParam{0};
+	expectMatrixEq<TypeParam>(a, 2, 2, {1, 2, 3, 4});   // a bez zmian
+}
+
+TYPED_TEST(MatrixTyped, SelfAssignmentKeepsData) {
+	auto a = makeMatrix<TypeParam>(2, 2, {1, 2, 3, 4});
+	Matrix<TypeParam>& alias = a;   // alias, zeby kompilator nie ostrzegal o a = a
+	a = alias;
+	expectMatrixEq<TypeParam>(a, 2, 2, {1, 2, 3, 4});
+}
+
+TYPED_TEST(MatrixTyped, MoveConstructorTransfersData) {
+	auto a = makeMatrix<TypeParam>(2, 2, {1, 2, 3, 4});
+	Matrix<TypeParam> b(std::move(a));
+	expectMatrixEq<TypeParam>(b, 2, 2, {1, 2, 3, 4});
+	// obiekt po przeniesieniu mozna ponownie uzyc po przypisaniu nowej wartosci
+	a = makeMatrix<TypeParam>(1, 2, {5, 6});
+	expectMatrixEq<TypeParam>(a, 1, 2, {5, 6});
+}
+
+TYPED_TEST(MatrixTyped, MoveAssignmentTransfersData) {
+	auto a = makeMatrix<TypeParam>(2, 2, {1, 2, 3, 4});
+	Matrix<TypeParam> b(1, 1, TypeParam{0});
+	b = std::move(a);
+	expectMatrixEq<TypeParam>(b, 2, 2, {1, 2, 3, 4});
+	a = makeMatrix<TypeParam>(1, 2, {5, 6});
+	expectMatrixEq<TypeParam>(a, 1, 2, {5, 6});
+}
+
+TYPED_TEST(MatrixTyped, SurvivesStoringInGrowingVector) {
+	std::vector<Matrix<TypeParam>> matrices;
+	for (int n = 1; n <= 10; ++n) {
+		matrices.push_back(Matrix<TypeParam>(1, 1, TypeParam(n)));   // realokacje kopiuja/przenosza
+	}
+	for (int n = 1; n <= 10; ++n) {
+		EXPECT_EQ(matrices[static_cast<std::size_t>(n - 1)](1, 1), TypeParam(n));
+	}
+}

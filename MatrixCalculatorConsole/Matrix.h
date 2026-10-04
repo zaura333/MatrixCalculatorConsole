@@ -4,6 +4,8 @@
 #include <ostream>
 #include <complex>
 #include <type_traits>
+#include <vector>
+#include <cstddef>
 #include "MatrixExceptions.h"
 
 template<typename T>
@@ -18,12 +20,10 @@ public:
     );
 	Matrix(int r = 0, int c = 0);
 	Matrix(int r, int c, T initial);
-	Matrix(const Matrix<T>& mt);
 	T& operator()(int x, int y);
 	const T& operator()(int x, int y) const;
 	template<typename U>
 	friend std::ostream& operator<<(std::ostream& os, const Matrix<U>& mt);
-	Matrix<T>& operator=(const Matrix& toCopy);
 	Matrix<T> operator+(Matrix<T>& mt);
 	Matrix<T> operator-(Matrix<T>& mt);
 	Matrix<T> operator*(T n);
@@ -32,42 +32,22 @@ public:
 	Matrix<T> operator*(Matrix& mt);
 	Matrix<T> transpose();
 	T getDet();
-	~Matrix();
+
 private:
 	int rows, columns;
-	T** data;
-	void freeDataMemory() const;
-	void copyData(const Matrix<T>& mt);
+	std::vector<T> data;
+	std::size_t index(int x, int y) const noexcept;
 };
 
 template<typename T>
-Matrix<T>::Matrix(int r, int c) : rows(r), columns(c) {
-	data = new T * [rows];
-
-	for (int i = 0; i < rows; i++) {
-		data[i] = new T[columns];
-	}
+Matrix<T>::Matrix(int r, int c)
+	: rows(r), columns(c), data(static_cast<std::size_t>(r) * static_cast<std::size_t>(c)) {
+	// vector value-inicjalizuje elementy: 0, 0.0 lub (0,0)
 }
 
 template<typename T>
-Matrix<T>::Matrix(int r, int c, T initial) : rows(r), columns(c) {
-	data = new T * [rows];
-
-	for (int i = 0; i < rows; i++) {
-		data[i] = new T[columns];
-
-		for (int j = 0; j < columns; j++) {
-			data[i][j] = initial;
-		}
-	}
-}
-
-template<typename T>
-Matrix<T>::Matrix(const Matrix<T>& mt)
-{
-	this->rows = mt.rows;
-	this->columns = mt.columns;
-	copyData(mt);
+Matrix<T>::Matrix(int r, int c, T initial)
+	: rows(r), columns(c), data(static_cast<std::size_t>(r) * static_cast<std::size_t>(c), initial) {
 }
 
 template<typename T>
@@ -76,7 +56,7 @@ T& Matrix<T>::operator()(int x, int y) {
 		throw IndexOutOfBoundsException("Error: Indices out of bounds of the matrix.");
 	}
 
-	return data[x - 1][y - 1];
+	return data[index(x, y)];
 }
 
 template<typename T>
@@ -85,21 +65,7 @@ const T& Matrix<T>::operator()(int x, int y) const {
 		throw IndexOutOfBoundsException("Error: Indices out of bounds of the matrix.");
 	}
 
-	return data[x - 1][y - 1];
-}
-
-template<typename T>
-Matrix<T>& Matrix<T>::operator=(const Matrix<T>& toCopy)
-{
-	if (this == &toCopy) {
-		return *this;
-	}
-
-	freeDataMemory();
-
-	copyData(toCopy);
-
-	return *this;
+	return data[index(x, y)];
 }
 
 template<typename T>
@@ -230,35 +196,11 @@ T Matrix<T>::getDet()
 	return res;
 }
 
-
 template<typename T>
-Matrix<T>::~Matrix() {
-	freeDataMemory();
-}
-
-template<typename T>
-void Matrix<T>::freeDataMemory() const
+std::size_t Matrix<T>::index(int x, int y) const noexcept
 {
-	for (int i = 0; i < rows; i++) {
-		delete[] data[i];
-	}
-	delete[] data;
-}
-
-template<typename T>
-inline void Matrix<T>::copyData(const Matrix<T>& mt)
-{
-	rows = mt.rows;
-	columns = mt.columns;
-
-	data = new T * [rows];
-
-	for (int i = 0; i < rows; i++) {
-		data[i] = new T[columns];
-		for (int j = 0; j < columns; j++) {
-			data[i][j] = mt.data[i][j];
-		}
-	}
+	return static_cast<std::size_t>(x - 1) * static_cast<std::size_t>(columns)
+		+ static_cast<std::size_t>(y - 1);
 }
 
 template<typename T>
