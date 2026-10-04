@@ -24,14 +24,14 @@ public:
 	const T& operator()(int x, int y) const;
 	template<typename U>
 	friend std::ostream& operator<<(std::ostream& os, const Matrix<U>& mt);
-	Matrix<T> operator+(Matrix<T>& mt);
-	Matrix<T> operator-(Matrix<T>& mt);
-	Matrix<T> operator*(T n);
+	[[nodiscard]] Matrix<T> operator+(const Matrix<T>& mt) const;
+	[[nodiscard]] Matrix<T> operator-(const Matrix<T>& mt) const;
+	[[nodiscard]] Matrix<T> operator*(T n) const;
 	template<typename U>
-	friend Matrix<U> operator*(U n, Matrix<U>& mt);
-	Matrix<T> operator*(Matrix& mt);
-	Matrix<T> transpose();
-	T getDet();
+	friend Matrix<U> operator*(U n, const Matrix<U>& mt);
+	[[nodiscard]] Matrix<T> operator*(const Matrix& mt) const;
+	[[nodiscard]] Matrix<T> transpose() const;
+	[[nodiscard]] T getDet() const;
 
 private:
 	int rows, columns;
@@ -70,7 +70,7 @@ const T& Matrix<T>::operator()(int x, int y) const {
 }
 
 template<typename T>
-Matrix<T> Matrix<T>::operator+(Matrix<T>& mt) {
+Matrix<T> Matrix<T>::operator+(const Matrix<T>& mt) const {
 	if (mt.rows != rows || mt.columns != columns) {
 		throw SizeMismatchException("Error: Matrix sizes must match to perform addition.");
 	}
@@ -87,7 +87,7 @@ Matrix<T> Matrix<T>::operator+(Matrix<T>& mt) {
 }
 
 template<typename T>
-Matrix<T> Matrix<T>::operator-(Matrix<T>& mt)
+Matrix<T> Matrix<T>::operator-(const Matrix<T>& mt) const
 {
 	if (mt.rows != rows || mt.columns != columns) {
 		throw SizeMismatchException("Error: Matrix sizes must match to perform subtraction.");
@@ -105,7 +105,7 @@ Matrix<T> Matrix<T>::operator-(Matrix<T>& mt)
 }
 
 template<typename T>
-Matrix<T> Matrix<T>::operator*(T n)
+Matrix<T> Matrix<T>::operator*(T n) const
 {
 	Matrix result(rows, columns);
 
@@ -119,7 +119,7 @@ Matrix<T> Matrix<T>::operator*(T n)
 }
 
 template<typename T>
-Matrix<T> Matrix<T>::operator*(Matrix<T>& mt)
+Matrix<T> Matrix<T>::operator*(const Matrix<T>& mt) const
 {
 	if (columns != mt.rows) {
 		throw SizeMismatchException("Error: Number of rows of the first matrix must be equal to the number of columns of the second matrix.");
@@ -147,7 +147,7 @@ Matrix<T> Matrix<T>::operator*(Matrix<T>& mt)
 }
 
 template<typename T>
-Matrix<T> Matrix<T>::transpose()
+Matrix<T> Matrix<T>::transpose() const
 {
 	Matrix result(columns, rows);
 
@@ -161,7 +161,7 @@ Matrix<T> Matrix<T>::transpose()
 }
 
 template<typename T>
-T Matrix<T>::getDet()
+T Matrix<T>::getDet() const
 {
 	if (rows != columns) {
 		throw NonSquareMatrixException("Error: Matrix must be square to calculate determinant.");
@@ -220,7 +220,7 @@ std::ostream& operator<<(std::ostream& os, const Matrix<T>& mt)
 }
 
 template<typename U>
-inline Matrix<U> operator*(U n, Matrix<U>& mt)
+[[nodiscard]] inline Matrix<U> operator*(U n, const Matrix<U>& mt)
 {
 	return mt * n;
 }

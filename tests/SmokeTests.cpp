@@ -23,5 +23,5 @@ TEST(Smoke, AddsMatrices) {
 
 TEST(Smoke, ThrowsOnSizeMismatch) {
 	Matrix<int> a(2, 2, 0), b(3, 3, 0);
-	EXPECT_ANY_THROW(a + b);
+	EXPECT_ANY_THROW(static_cast<void>(a + b));
 }

@@ -163,7 +163,7 @@ TYPED_TEST(MatrixTyped, DeterminantOfSingularMatrixIsZero) {
 
 TYPED_TEST(MatrixTyped, DeterminantOfNonSquareMatrixThrows) {
 	Matrix<TypeParam> m(2, 3, TypeParam{1});
-	EXPECT_THROW(m.getDet(), NonSquareMatrixException);
+	EXPECT_THROW(static_cast<void>(m.getDet()), NonSquareMatrixException);
 }
 
 // ---------------------------------------------------------------------------
@@ -334,4 +334,40 @@ TEST(MatrixDimensions, MatrixWithZeroDimensionHasNoElements) {
 	Matrix<int> noColumns(5, 0);
 	EXPECT_THROW(noRows(1, 1), IndexOutOfBoundsException);
 	EXPECT_THROW(noColumns(1, 1), IndexOutOfBoundsException);
+}
+
+// ---------------------------------------------------------------------------
+// Const-correctness i wyrazenia z obiektami tymczasowymi (krok 12)
+// ---------------------------------------------------------------------------
+TYPED_TEST(MatrixTyped, OperationsWorkOnConstMatrices) {
+	const auto a = makeMatrix<TypeParam>(2, 2, {1, 2, 3, 4});
+	const auto b = makeMatrix<TypeParam>(2, 2, {10, 20, 30, 40});
+	expectMatrixEq<TypeParam>(a + b, 2, 2, {11, 22, 33, 44});
+	expectMatrixEq<TypeParam>(b - a, 2, 2, {9, 18, 27, 36});
+	expectMatrixEq<TypeParam>(a * b, 2, 2, {70, 100, 150, 220});
+	expectMatrixEq<TypeParam>(a * TypeParam{2}, 2, 2, {2, 4, 6, 8});
+	expectMatrixEq<TypeParam>(TypeParam{2} * a, 2, 2, {2, 4, 6, 8});
+	expectMatrixEq<TypeParam>(a.transpose(), 2, 2, {1, 3, 2, 4});
+	EXPECT_EQ(a.getDet(), TypeParam{-2});
+}
+
+TYPED_TEST(MatrixTyped, ConstOperationsDoNotModifyOperands) {
+	const auto a = makeMatrix<TypeParam>(2, 2, {1, 2, 3, 4});
+	const auto b = makeMatrix<TypeParam>(2, 2, {10, 20, 30, 40});
+	static_cast<void>(a + b);
+	static_cast<void>(a * b);
+	static_cast<void>(a.transpose());
+	expectMatrixEq<TypeParam>(a, 2, 2, {1, 2, 3, 4});
+	expectMatrixEq<TypeParam>(b, 2, 2, {10, 20, 30, 40});
+}
+
+TYPED_TEST(MatrixTyped, ChainedExpressionsWithTemporaries) {
+	auto a = makeMatrix<TypeParam>(2, 2, {1, 2, 3, 4});
+	auto b = makeMatrix<TypeParam>(2, 2, {10, 20, 30, 40});
+	auto c = makeMatrix<TypeParam>(2, 2, {100, 200, 300, 400});
+	expectMatrixEq<TypeParam>(a + (b + c), 2, 2, {111, 222, 333, 444});
+	expectMatrixEq<TypeParam>(a + b + c, 2, 2, {111, 222, 333, 444});
+	expectMatrixEq<TypeParam>(TypeParam{2} * (a + b), 2, 2, {22, 44, 66, 88});
+	expectMatrixEq<TypeParam>((a + b).transpose(), 2, 2, {11, 33, 22, 44});
+	expectMatrixEq<TypeParam>(a * (b + c), 2, 2, {770, 1100, 1650, 2420});
 }
