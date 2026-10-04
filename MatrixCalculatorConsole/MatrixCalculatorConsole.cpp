@@ -20,7 +20,7 @@ int main()
         A(2, 2) = 4;
         A(2, 3) = 2;
     }
-    catch (std::out_of_range e) {
+    catch (const IndexOutOfBoundsException& e) {
         std::cout << "Blad podczas dostepu do elemetnow macierzy:\n" << e.what();
         return -1;
     }
@@ -35,7 +35,7 @@ int main()
     try {
         Added = A + B;
     }
-    catch (SizeMismatchException e) {
+    catch (const SizeMismatchException& e) {
         std::cout << "\nBlad podczas dodawania macierzy:\n" << e.what();
         return -1;
     }
@@ -48,7 +48,7 @@ int main()
     try {
         Subtracted = A - B;
     }
-    catch (SizeMismatchException e) {
+    catch (const SizeMismatchException& e) {
         std::cout << "\nBlad podczas odejmowania macierzy:\n" << e.what();
         return -1;
     }
@@ -69,7 +69,7 @@ int main()
     try {
         MtMultiplied = A * C;
     }
-    catch (SizeMismatchException e) {
+    catch (const SizeMismatchException& e) {
         std::cout << "\nBlad podczas mnozenia macierzy:\n" << e.what();
         return -1;
     }
@@ -130,7 +130,7 @@ int main()
         M(5, 5) = 24;
 
     }
-    catch (IndexOutOfBoundsException e) {
+    catch (const IndexOutOfBoundsException& e) {
         std::cout << "Blad podczas dostepu do elemetnow macierzy:\n" << e.what();
         return -1;
     }
@@ -141,7 +141,7 @@ int main()
     try {
         wyznacznik = M.getDet();
     }
-    catch (NonSquareMatrixException e) {
+    catch (const NonSquareMatrixException& e) {
         std::cout << "\nBlad podczas obliczania wyznacznika. Macierz nie jest kwadratowa:\n" << e.what();
         return -1;
     }

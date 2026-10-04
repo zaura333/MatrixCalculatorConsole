@@ -37,6 +37,7 @@ private:
 	int rows, columns;
 	std::vector<T> data;
 	std::size_t index(int x, int y) const noexcept;
+	void checkBounds(int x, int y) const;
 	static std::size_t checkedSize(int r, int c);
 };
 
@@ -53,19 +54,13 @@ Matrix<T>::Matrix(int r, int c, T initial)
 
 template<typename T>
 T& Matrix<T>::operator()(int x, int y) {
-	if (x > rows || x <= 0 || y > columns || y <= 0) {
-		throw IndexOutOfBoundsException("Error: Indices out of bounds of the matrix.");
-	}
-
+	checkBounds(x, y);
 	return data[index(x, y)];
 }
 
 template<typename T>
 const T& Matrix<T>::operator()(int x, int y) const {
-	if (x > rows || x <= 0 || y > columns || y <= 0) {
-		throw IndexOutOfBoundsException("Error: Indices out of bounds of the matrix.");
-	}
-
+	checkBounds(x, y);
 	return data[index(x, y)];
 }
 
@@ -134,8 +129,6 @@ Matrix<T> Matrix<T>::operator*(const Matrix<T>& mt) const
 			T element = 0;
 
 			for (int k = 1; k <= common; k++) {
-				T a = this->operator()(i, k);
-				T b = mt(k, j);
 				element += (this->operator()(i, k) * mt(k, j));
 			}
 
@@ -233,4 +226,12 @@ std::size_t Matrix<T>::checkedSize(int r, int c)
 	}
 
 	return static_cast<std::size_t>(r) * static_cast<std::size_t>(c);
+}
+
+template<typename T>
+void Matrix<T>::checkBounds(int x, int y) const
+{
+	if (x > rows || x <= 0 || y > columns || y <= 0) {
+		throw IndexOutOfBoundsException("Error: Indices out of bounds of the matrix.");
+	}
 }
