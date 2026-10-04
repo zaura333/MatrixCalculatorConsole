@@ -16,40 +16,26 @@ public:
         std::is_same_v<T, std::complex<double>>,
         "Matrix<T>: T może być tylko int, double lub std::complex<double>"
     );
-	// Konstruktor
 	Matrix(int r = 0, int c = 0);
-	// Konstruktor z inicjalizacją
 	Matrix(int r, int c, T initial);
-	//Konstruktor kopia
 	Matrix(const Matrix<T>& mt);
-	// Pobranie wartości elementu, zwraca referencje do obiektu i umożliwia edytowanie, np.: M(2,3)=5
-	T& operator()(int x, int y) const;
-	// Wyświetlanie całej macierzy (https://learn.microsoft.com/en-us/cpp/standard-library/overloading-the-output-operator-for-your-own-classes?view=msvc-170)
+	T& operator()(int x, int y);
 	template<typename U>
 	friend std::ostream& operator<<(std::ostream& os, const Matrix<U>& mt);
-	// Kopiowanie macierzy
 	Matrix<T>& operator=(const Matrix& toCopy);
-	// Dodawanie macierzy
 	Matrix<T> operator+(Matrix<T>& mt);
-	// Odejmowanie macierzy
 	Matrix<T> operator-(Matrix<T>& mt);
-	// Mnożenie przez liczbę
 	Matrix<T> operator*(T n);
 	template<typename U>
 	friend Matrix<U> operator*(U n, Matrix<U>& mt);
-	// Mnożenie macierzy
 	Matrix<T> operator*(Matrix& mt);
-	// Transponowanie macierzy
 	Matrix<T> transpose();
-	// Liczenie wyznacznika
 	T getDet();
-	// Destruktor
 	~Matrix();
 private:
-	// Liczba wierszy/kolumn macierzy
 	int rows, columns;
-	T** data; // Pointer do tablicy wierszy
-	void freeDataMemory() const; // Funkcja usuwajca tablice i czyszacza dane macierzy.
+	T** data;
+	void freeDataMemory() const;
 	void copyData(const Matrix<T>& mt);
 };
 
@@ -84,7 +70,7 @@ Matrix<T>::Matrix(const Matrix<T>& mt)
 }
 
 template<typename T>
-T& Matrix<T>::operator()(int x, int y) const {
+T& Matrix<T>::operator()(int x, int y) {
 	if (x > rows || x <= 0 || y > columns || y <= 0) {
 		throw std::out_of_range("Error: Indices out of bounds of the matrix.");
 	}
@@ -216,7 +202,6 @@ T Matrix<T>::getDet()
 
 	T res = 0;
 	for (int col = 1; col <= n; ++col) {
-		// Tworzenie podmacierzy (bez pierwszego wiersza i kolumny col)
 		Matrix<T> subMat(n - 1, n - 1);
 
 		for (int i = 2; i <= n; ++i) {
