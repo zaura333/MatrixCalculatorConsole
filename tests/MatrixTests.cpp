@@ -1,0 +1,212 @@
+#include <gtest/gtest.h>
+#include <complex>
+#include <initializer_list>
+#include <sstream>
+#include <stdexcept>
+#include "Matrix.h"
+
+// ---------------------------------------------------------------------------
+// Funkcje pomocnicze
+// ---------------------------------------------------------------------------
+namespace {
+
+// Tworzy macierz rows x cols z wartosci podanych wierszami (indeksowanie od 1).
+template <typename T>
+Matrix<T> makeMatrix(int rows, int cols, std::initializer_list<T> values) {
+	Matrix<T> m(rows, cols, T{});
+	auto it = values.begin();
+	for (int i = 1; i <= rows; ++i) {
+		for (int j = 1; j <= cols; ++j) {
+			m(i, j) = *it++;
+		}
+	}
+	return m;
+}
+
+// Sprawdza wszystkie elementy macierzy (wartosci podane wierszami).
+template <typename T>
+void expectMatrixEq(const Matrix<T>& m, int rows, int cols, std::initializer_list<T> expected) {
+	auto it = expected.begin();
+	for (int i = 1; i <= rows; ++i) {
+		for (int j = 1; j <= cols; ++j) {
+			EXPECT_EQ(m(i, j), *it++) << "different element at (" << i << ", " << j << ")";
+		}
+	}
+}
+
+}  // namespace
+
+// ---------------------------------------------------------------------------
+// Testy dla wszystkich obslugiwanych typow: int, double, std::complex<double>
+// ---------------------------------------------------------------------------
+template <typename T>
+class MatrixTyped : public ::testing::Test {};
+
+using AllTypes = ::testing::Types<int, double, std::complex<double>>;
+TYPED_TEST_SUITE(MatrixTyped, AllTypes);
+
+TYPED_TEST(MatrixTyped, ConstructorWithInitialValueFillsAllElements) {
+	Matrix<TypeParam> m(2, 3, TypeParam{7});
+	expectMatrixEq<TypeParam>(m, 2, 3, {7, 7, 7, 7, 7, 7});
+}
+
+TYPED_TEST(MatrixTyped, IndexingIsOneBasedAndAddressesDistinctElements) {
+	Matrix<TypeParam> m(2, 3, TypeParam{0});
+	m(1, 1) = TypeParam{1};
+	m(1, 3) = TypeParam{2};
+	m(2, 1) = TypeParam{3};
+	m(2, 3) = TypeParam{4};
+	expectMatrixEq<TypeParam>(m, 2, 3, {1, 0, 2, 3, 0, 4});
+}
+
+TYPED_TEST(MatrixTyped, AddsElementwise) {
+	auto a = makeMatrix<TypeParam>(2, 3, {1, 2, 3, 4, 5, 6});
+	auto b = makeMatrix<TypeParam>(2, 3, {10, 20, 30, 40, 50, 60});
+	Matrix<TypeParam> sum = a + b;
+	expectMatrixEq<TypeParam>(sum, 2, 3, {11, 22, 33, 44, 55, 66});
+}
+
+TYPED_TEST(MatrixTyped, AdditionDoesNotModifyOperands) {
+	auto a = makeMatrix<TypeParam>(1, 2, {1, 2});
+	auto b = makeMatrix<TypeParam>(1, 2, {3, 4});
+	Matrix<TypeParam> sum = a + b;
+	static_cast<void>(sum);
+	expectMatrixEq<TypeParam>(a, 1, 2, {1, 2});
+	expectMatrixEq<TypeParam>(b, 1, 2, {3, 4});
+}
+
+TYPED_TEST(MatrixTyped, AdditionOfDifferentSizesThrows) {
+	Matrix<TypeParam> a(2, 3, TypeParam{1});
+	Matrix<TypeParam> b(3, 2, TypeParam{1});
+	EXPECT_THROW(static_cast<void>(a + b), Matrix_size_not_match);
+}
+
+TYPED_TEST(MatrixTyped, SubtractsElementwise) {
+	auto a = makeMatrix<TypeParam>(2, 3, {10, 20, 30, 40, 50, 60});
+	auto b = makeMatrix<TypeParam>(2, 3, {1, 2, 3, 4, 5, 6});
+	Matrix<TypeParam> diff = a - b;
+	expectMatrixEq<TypeParam>(diff, 2, 3, {9, 18, 27, 36, 45, 54});
+}
+
+TYPED_TEST(MatrixTyped, SubtractionOfDifferentSizesThrows) {
+	Matrix<TypeParam> a(2, 3, TypeParam{1});
+	Matrix<TypeParam> b(2, 2, TypeParam{1});
+	EXPECT_THROW(static_cast<void>(a - b), Matrix_size_not_match);
+}
+
+TYPED_TEST(MatrixTyped, MultipliesMatrices) {
+	auto a = makeMatrix<TypeParam>(2, 3, {1, 2, 3, 4, 5, 6});
+	auto b = makeMatrix<TypeParam>(3, 2, {7, 8, 9, 10, 11, 12});
+	Matrix<TypeParam> product = a * b;
+	expectMatrixEq<TypeParam>(product, 2, 2, {58, 64, 139, 154});
+}
+
+TYPED_TEST(MatrixTyped, MultiplicationWithIncompatibleSizesThrows) {
+	Matrix<TypeParam> a(2, 3, TypeParam{1});
+	Matrix<TypeParam> b(2, 2, TypeParam{1});   // a ma 3 kolumny, b ma 2 wiersze
+	EXPECT_THROW(static_cast<void>(a * b), Matrix_size_not_match);
+}
+
+TYPED_TEST(MatrixTyped, MultipliesByScalarOnTheRight) {
+	auto m = makeMatrix<TypeParam>(2, 2, {1, 2, 3, 4});
+	Matrix<TypeParam> scaled = m * TypeParam{3};
+	expectMatrixEq<TypeParam>(scaled, 2, 2, {3, 6, 9, 12});
+}
+
+TYPED_TEST(MatrixTyped, MultipliesByScalarOnTheLeft) {
+	auto m = makeMatrix<TypeParam>(2, 2, {1, 2, 3, 4});
+	Matrix<TypeParam> scaled = TypeParam{3} * m;
+	expectMatrixEq<TypeParam>(scaled, 2, 2, {3, 6, 9, 12});
+}
+
+TYPED_TEST(MatrixTyped, MultiplyingByZeroGivesZeroMatrix) {
+	auto m = makeMatrix<TypeParam>(2, 2, {1, 2, 3, 4});
+	Matrix<TypeParam> zero = m * TypeParam{0};
+	expectMatrixEq<TypeParam>(zero, 2, 2, {0, 0, 0, 0});
+}
+
+TYPED_TEST(MatrixTyped, TransposeSwapsRowsAndColumns) {
+	auto m = makeMatrix<TypeParam>(2, 3, {1, 2, 3, 4, 5, 6});
+	Matrix<TypeParam> t = m.transpose();
+	expectMatrixEq<TypeParam>(t, 3, 2, {1, 4, 2, 5, 3, 6});
+}
+
+TYPED_TEST(MatrixTyped, TransposingTwiceGivesOriginal) {
+	auto m = makeMatrix<TypeParam>(2, 3, {1, 2, 3, 4, 5, 6});
+	Matrix<TypeParam> t = m.transpose();
+	Matrix<TypeParam> back = t.transpose();
+	expectMatrixEq<TypeParam>(back, 2, 3, {1, 2, 3, 4, 5, 6});
+}
+
+// ---------------------------------------------------------------------------
+// Wyznacznik: tylko int i double, std::complex<double> potrzebuje fixa 
+// ---------------------------------------------------------------------------
+template <typename T>
+class MatrixNumeric : public ::testing::Test {};
+
+using NumericTypes = ::testing::Types<int, double>;
+TYPED_TEST_SUITE(MatrixNumeric, NumericTypes);
+
+TYPED_TEST(MatrixNumeric, DeterminantOf1x1IsTheElement) {
+	auto m = makeMatrix<TypeParam>(1, 1, {5});
+	EXPECT_EQ(m.getDet(), TypeParam{5});
+}
+
+TYPED_TEST(MatrixNumeric, DeterminantOf2x2) {
+	auto m = makeMatrix<TypeParam>(2, 2, {1, 2, 3, 4});
+	EXPECT_EQ(m.getDet(), TypeParam{-2});        // 1*4 - 2*3
+}
+
+TYPED_TEST(MatrixNumeric, DeterminantOf3x3) {
+	auto m = makeMatrix<TypeParam>(3, 3, {6, 1, 1, 4, -2, 5, 2, 8, 7});
+	EXPECT_EQ(m.getDet(), TypeParam{-306});
+}
+
+TYPED_TEST(MatrixNumeric, DeterminantOfSingularMatrixIsZero) {
+	auto m = makeMatrix<TypeParam>(3, 3, {1, 2, 3, 4, 5, 6, 7, 8, 9});
+	EXPECT_EQ(m.getDet(), TypeParam{0});
+}
+
+TYPED_TEST(MatrixNumeric, DeterminantOfNonSquareMatrixThrows) {
+	Matrix<TypeParam> m(2, 3, TypeParam{1});
+	EXPECT_THROW(m.getDet(), Matrix_size_not_match);
+}
+
+// ---------------------------------------------------------------------------
+// Testy niezalezne od typu
+// ---------------------------------------------------------------------------
+TEST(MatrixBasics, DefaultConstructorCreatesEmptyMatrix) {
+	EXPECT_NO_THROW(Matrix<int> m);
+	Matrix<int> m;
+	EXPECT_THROW(m(1, 1), std::out_of_range);   // brak elementow
+}
+
+TEST(MatrixIndexing, OutOfRangeThrows) {
+	Matrix<int> m(2, 3, 0);
+	EXPECT_THROW(m(0, 1), std::out_of_range);
+	EXPECT_THROW(m(1, 0), std::out_of_range);
+	EXPECT_THROW(m(3, 1), std::out_of_range);    // rows + 1
+	EXPECT_THROW(m(1, 4), std::out_of_range);    // columns + 1
+	EXPECT_THROW(m(-1, 1), std::out_of_range);
+	EXPECT_THROW(m(1, -1), std::out_of_range);
+}
+
+TEST(MatrixIndexing, BoundaryElementsAreAccessible) {
+	Matrix<int> m(2, 3, 0);
+	EXPECT_NO_THROW(m(1, 1));
+	EXPECT_NO_THROW(m(2, 3));
+}
+
+TEST(MatrixIndexing, ConstMatrixIsReadable) {
+	const Matrix<int> m(2, 2, 4);
+	EXPECT_EQ(m(1, 2), 4);
+	EXPECT_THROW(m(3, 1), std::out_of_range);
+}
+
+TEST(MatrixOutput, PrintsRowsSeparatedByNewlines) {
+	auto m = makeMatrix<int>(2, 2, {1, 2, 3, 4});
+	std::ostringstream os;
+	os << m;
+	EXPECT_EQ(os.str(), "\n[\n\t1\t2\n\t3\t4\n]\n");
+}
+
