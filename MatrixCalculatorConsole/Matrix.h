@@ -17,7 +17,7 @@ public:
         std::is_same_v<T, int> ||
         std::is_same_v<T, double> ||
         std::is_same_v<T, std::complex<double>>,
-        "Matrix<T>: T może być tylko int, double lub std::complex<double>"
+        "Matrix<T>: T must be int, double or std::complex<double>"
     );
 	Matrix(int r = 0, int c = 0);
 	Matrix(int r, int c, T initial);
@@ -45,18 +45,17 @@ private:
 
 // ---------------------------------------------------------------------------
 // Deduction guides (CTAD, C++17)
-// Domyslnie T jest wywnioskowane z argumentu `initial`: Matrix(2, 3, 1.5) -> Matrix<double>.
-// Ponizszy przewodnik obsluguje przypadek, w ktorym domyslne wnioskowanie by zawiodlo.
-// Bez wartosci poczatkowej (Matrix(2, 3)) T nie da sie wywnioskowac - trzeba podac je jawnie: Matrix<int>(2, 3).
+// By default T is deduced from the `initial` argument: Matrix(2, 3, 1.5) -> Matrix<double>.
+// The guide below handles the one case where the default deduction would fail.
 // ---------------------------------------------------------------------------
 
-// float nie jest dozwolonym T (static_assert) -> dedukcja na double.
+// float is not an allowed T (static_assert) -> deduce double instead.
 Matrix(int, int, float) -> Matrix<double>;
 
 template<typename T>
 Matrix<T>::Matrix(int r, int c)
 	: rows(r), columns(c), data(checkedSize(r, c)) {
-	// vector value-inicjalizuje elementy: 0, 0.0 lub (0,0)
+	// std::vector value-initialises the elements: 0, 0.0 or (0,0)
 }
 
 template<typename T>
@@ -224,7 +223,7 @@ std::ostream& operator<<(std::ostream& os, const Matrix<T>& mt)
 		for (int j = 1; j <= c; j++) {
 			os << '\t';
 			if constexpr (std::is_same_v<T, std::complex<double>>) {
-				// zespolone: a+bi zamiast domyslnego (a,b)
+				// complex: print a+bi instead of the default (a,b)
 				const auto& z = mt(i, j);
 				os << z.real() << (z.imag() < 0 ? "-" : "+") << std::abs(z.imag()) << 'i';
 			}

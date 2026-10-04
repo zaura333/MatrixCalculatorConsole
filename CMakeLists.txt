@@ -3,9 +3,9 @@ project(MatrixCalculatorConsole LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)          # -std=c++17 zamiast gnu++17
+set(CMAKE_CXX_EXTENSIONS OFF)          # -std=c++17 instead of gnu++17
 
-# Sanitizery (AddressSanitizer + UBSan) - UBSan tylko GCC/Clang:
+# Sanitizers (AddressSanitizer + UBSan) - UBSan is GCC/Clang only:
 #   cmake -S . -B build-san -DENABLE_SANITIZERS=ON
 option(ENABLE_SANITIZERS "Build with AddressSanitizer and UBSan (GCC/Clang only)" OFF)
 if(ENABLE_SANITIZERS)
@@ -17,7 +17,7 @@ if(ENABLE_SANITIZERS)
     endif()
 endif()
 
-# Biblioteka: Matrix.h jest nag³ówkowy, wiêc wchodzi tylko plik z wyj¹tkami
+# Library: Matrix.h is header-only, so only the exceptions file is compiled
 add_library(matrix STATIC MatrixCalculatorConsole/MatrixExceptions.cpp)
 target_include_directories(matrix PUBLIC MatrixCalculatorConsole)
 
