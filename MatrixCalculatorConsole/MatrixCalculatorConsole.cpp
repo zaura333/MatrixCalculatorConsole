@@ -35,7 +35,7 @@ int main()
     try {
         Added = A + B;
     }
-    catch (Matrix_size_not_match e) {
+    catch (SizeMismatchException e) {
         std::cout << "\nBlad podczas dodawania macierzy:\n" << e.what();
         return -1;
     }
@@ -48,7 +48,7 @@ int main()
     try {
         Subtracted = A - B;
     }
-    catch (Matrix_size_not_match e) {
+    catch (SizeMismatchException e) {
         std::cout << "\nBlad podczas odejmowania macierzy:\n" << e.what();
         return -1;
     }
@@ -69,7 +69,7 @@ int main()
     try {
         MtMultiplied = A * C;
     }
-    catch (Matrix_size_not_match e) {
+    catch (SizeMismatchException e) {
         std::cout << "\nBlad podczas mnozenia macierzy:\n" << e.what();
         return -1;
     }
@@ -130,7 +130,7 @@ int main()
         M(5, 5) = 24;
 
     }
-    catch (std::out_of_range e) {
+    catch (IndexOutOfBoundsException e) {
         std::cout << "Blad podczas dostepu do elemetnow macierzy:\n" << e.what();
         return -1;
     }
@@ -141,7 +141,7 @@ int main()
     try {
         wyznacznik = M.getDet();
     }
-    catch (Matrix_size_not_match e) {
+    catch (NonSquareMatrixException e) {
         std::cout << "\nBlad podczas obliczania wyznacznika. Macierz nie jest kwadratowa:\n" << e.what();
         return -1;
     }

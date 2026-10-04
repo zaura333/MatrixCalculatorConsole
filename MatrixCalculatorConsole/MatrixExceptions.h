@@ -1,9 +1,23 @@
 #pragma once
 #include <stdexcept>
+#include <string>
 
-class Matrix_size_not_match : public std::logic_error {
+class MatrixException : public std::logic_error {
 public:
-	explicit Matrix_size_not_match(const std::string& msg) : std::logic_error(msg) {}
+	using std::logic_error::logic_error;
 };
 
+class SizeMismatchException : public MatrixException {
+public:
+	using MatrixException::MatrixException;
+};
 
+class NonSquareMatrixException : public MatrixException {
+public:
+	using MatrixException::MatrixException;
+};
+
+class IndexOutOfBoundsException : public MatrixException {
+public:
+	using MatrixException::MatrixException;
+};

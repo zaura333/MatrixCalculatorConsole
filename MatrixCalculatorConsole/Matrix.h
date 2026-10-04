@@ -73,7 +73,7 @@ Matrix<T>::Matrix(const Matrix<T>& mt)
 template<typename T>
 T& Matrix<T>::operator()(int x, int y) {
 	if (x > rows || x <= 0 || y > columns || y <= 0) {
-		throw std::out_of_range("Error: Indices out of bounds of the matrix.");
+		throw IndexOutOfBoundsException("Error: Indices out of bounds of the matrix.");
 	}
 
 	return data[x - 1][y - 1];
@@ -82,7 +82,7 @@ T& Matrix<T>::operator()(int x, int y) {
 template<typename T>
 const T& Matrix<T>::operator()(int x, int y) const {
 	if (x > rows || x <= 0 || y > columns || y <= 0) {
-		throw std::out_of_range("Error: Indices out of bounds of the matrix.");
+		throw IndexOutOfBoundsException("Error: Indices out of bounds of the matrix.");
 	}
 
 	return data[x - 1][y - 1];
@@ -105,7 +105,7 @@ Matrix<T>& Matrix<T>::operator=(const Matrix<T>& toCopy)
 template<typename T>
 Matrix<T> Matrix<T>::operator+(Matrix<T>& mt) {
 	if (mt.rows != rows || mt.columns != columns) {
-		throw Matrix_size_not_match("Error: Matrix sizes must match to perform addition.");
+		throw SizeMismatchException("Error: Matrix sizes must match to perform addition.");
 	}
 
 	Matrix result(rows, columns);
@@ -123,7 +123,7 @@ template<typename T>
 Matrix<T> Matrix<T>::operator-(Matrix<T>& mt)
 {
 	if (mt.rows != rows || mt.columns != columns) {
-		throw Matrix_size_not_match("Error: Matrix sizes must match to perform subtraction.");
+		throw SizeMismatchException("Error: Matrix sizes must match to perform subtraction.");
 	}
 
 	Matrix result(rows, columns);
@@ -155,7 +155,7 @@ template<typename T>
 Matrix<T> Matrix<T>::operator*(Matrix<T>& mt)
 {
 	if (columns != mt.rows) {
-		throw Matrix_size_not_match("Error: Number of rows of the first matrix must be equal to the number of columns of the second matrix.");
+		throw SizeMismatchException("Error: Number of rows of the first matrix must be equal to the number of columns of the second matrix.");
 	}
 
 	int common = columns;
@@ -197,7 +197,7 @@ template<typename T>
 T Matrix<T>::getDet()
 {
 	if (rows != columns) {
-		throw Matrix_size_not_match("Error: Matrix must be square to calculate determinant.");
+		throw NonSquareMatrixException("Error: Matrix must be square to calculate determinant.");
 	}
 
 	int n = rows;

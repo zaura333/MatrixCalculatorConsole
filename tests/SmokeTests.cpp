@@ -9,10 +9,10 @@ TEST(Smoke, CreatesMatrix) {
 
 TEST(Smoke, ThrowsOnOutOfBoundsAccess) {
 	Matrix<int> m(2, 3);
-	EXPECT_THROW(m(0, 1), std::out_of_range);
-	EXPECT_THROW(m(1, 0), std::out_of_range);
-	EXPECT_THROW(m(3, 1), std::out_of_range);
-	EXPECT_THROW(m(1, 4), std::out_of_range);
+	EXPECT_THROW(m(0, 1), IndexOutOfBoundsException);
+	EXPECT_THROW(m(1, 0), IndexOutOfBoundsException);
+	EXPECT_THROW(m(3, 1), IndexOutOfBoundsException);
+	EXPECT_THROW(m(1, 4), IndexOutOfBoundsException);
 }
 
 TEST(Smoke, AddsMatrices) {

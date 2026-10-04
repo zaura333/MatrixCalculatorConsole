@@ -78,7 +78,7 @@ TYPED_TEST(MatrixTyped, AdditionDoesNotModifyOperands) {
 TYPED_TEST(MatrixTyped, AdditionOfDifferentSizesThrows) {
 	Matrix<TypeParam> a(2, 3, TypeParam{1});
 	Matrix<TypeParam> b(3, 2, TypeParam{1});
-	EXPECT_THROW(static_cast<void>(a + b), Matrix_size_not_match);
+	EXPECT_THROW(static_cast<void>(a + b), SizeMismatchException);
 }
 
 TYPED_TEST(MatrixTyped, SubtractsElementwise) {
@@ -91,7 +91,7 @@ TYPED_TEST(MatrixTyped, SubtractsElementwise) {
 TYPED_TEST(MatrixTyped, SubtractionOfDifferentSizesThrows) {
 	Matrix<TypeParam> a(2, 3, TypeParam{1});
 	Matrix<TypeParam> b(2, 2, TypeParam{1});
-	EXPECT_THROW(static_cast<void>(a - b), Matrix_size_not_match);
+	EXPECT_THROW(static_cast<void>(a - b), SizeMismatchException);
 }
 
 TYPED_TEST(MatrixTyped, MultipliesMatrices) {
@@ -104,7 +104,7 @@ TYPED_TEST(MatrixTyped, MultipliesMatrices) {
 TYPED_TEST(MatrixTyped, MultiplicationWithIncompatibleSizesThrows) {
 	Matrix<TypeParam> a(2, 3, TypeParam{1});
 	Matrix<TypeParam> b(2, 2, TypeParam{1});   // a ma 3 kolumny, b ma 2 wiersze
-	EXPECT_THROW(static_cast<void>(a * b), Matrix_size_not_match);
+	EXPECT_THROW(static_cast<void>(a * b), SizeMismatchException);
 }
 
 TYPED_TEST(MatrixTyped, MultipliesByScalarOnTheRight) {
@@ -160,7 +160,7 @@ TYPED_TEST(MatrixTyped, DeterminantOfSingularMatrixIsZero) {
 
 TYPED_TEST(MatrixTyped, DeterminantOfNonSquareMatrixThrows) {
 	Matrix<TypeParam> m(2, 3, TypeParam{1});
-	EXPECT_THROW(m.getDet(), Matrix_size_not_match);
+	EXPECT_THROW(m.getDet(), NonSquareMatrixException);
 }
 
 // ---------------------------------------------------------------------------
@@ -169,17 +169,17 @@ TYPED_TEST(MatrixTyped, DeterminantOfNonSquareMatrixThrows) {
 TEST(MatrixBasics, DefaultConstructorCreatesEmptyMatrix) {
 	EXPECT_NO_THROW(Matrix<int> m);
 	Matrix<int> m;
-	EXPECT_THROW(m(1, 1), std::out_of_range);   // brak elementow
+	EXPECT_THROW(m(1, 1), IndexOutOfBoundsException);   // brak elementow
 }
 
 TEST(MatrixIndexing, OutOfRangeThrows) {
 	Matrix<int> m(2, 3, 0);
-	EXPECT_THROW(m(0, 1), std::out_of_range);
-	EXPECT_THROW(m(1, 0), std::out_of_range);
-	EXPECT_THROW(m(3, 1), std::out_of_range);    // rows + 1
-	EXPECT_THROW(m(1, 4), std::out_of_range);    // columns + 1
-	EXPECT_THROW(m(-1, 1), std::out_of_range);
-	EXPECT_THROW(m(1, -1), std::out_of_range);
+	EXPECT_THROW(m(0, 1), IndexOutOfBoundsException);
+	EXPECT_THROW(m(1, 0), IndexOutOfBoundsException);
+	EXPECT_THROW(m(3, 1), IndexOutOfBoundsException);    // rows + 1
+	EXPECT_THROW(m(1, 4), IndexOutOfBoundsException);    // columns + 1
+	EXPECT_THROW(m(-1, 1), IndexOutOfBoundsException);
+	EXPECT_THROW(m(1, -1), IndexOutOfBoundsException);
 }
 
 TEST(MatrixIndexing, BoundaryElementsAreAccessible) {
@@ -191,7 +191,7 @@ TEST(MatrixIndexing, BoundaryElementsAreAccessible) {
 TEST(MatrixIndexing, ConstMatrixIsReadable) {
 	const Matrix<int> m(2, 2, 4);
 	EXPECT_EQ(m(1, 2), 4);
-	EXPECT_THROW(m(3, 1), std::out_of_range);
+	EXPECT_THROW(m(3, 1), IndexOutOfBoundsException);
 }
 
 TEST(MatrixOutput, PrintsRowsSeparatedByNewlines) {
