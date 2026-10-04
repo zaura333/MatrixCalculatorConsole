@@ -20,6 +20,7 @@ public:
 	Matrix(int r, int c, T initial);
 	Matrix(const Matrix<T>& mt);
 	T& operator()(int x, int y);
+	const T& operator()(int x, int y) const;
 	template<typename U>
 	friend std::ostream& operator<<(std::ostream& os, const Matrix<U>& mt);
 	Matrix<T>& operator=(const Matrix& toCopy);
@@ -71,6 +72,15 @@ Matrix<T>::Matrix(const Matrix<T>& mt)
 
 template<typename T>
 T& Matrix<T>::operator()(int x, int y) {
+	if (x > rows || x <= 0 || y > columns || y <= 0) {
+		throw std::out_of_range("Error: Indices out of bounds of the matrix.");
+	}
+
+	return data[x - 1][y - 1];
+}
+
+template<typename T>
+const T& Matrix<T>::operator()(int x, int y) const {
 	if (x > rows || x <= 0 || y > columns || y <= 0) {
 		throw std::out_of_range("Error: Indices out of bounds of the matrix.");
 	}
