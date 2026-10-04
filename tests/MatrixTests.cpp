@@ -138,36 +138,27 @@ TYPED_TEST(MatrixTyped, TransposingTwiceGivesOriginal) {
 	expectMatrixEq<TypeParam>(back, 2, 3, {1, 2, 3, 4, 5, 6});
 }
 
-// ---------------------------------------------------------------------------
-// Wyznacznik: tylko int i double, std::complex<double> potrzebuje fixa 
-// ---------------------------------------------------------------------------
-template <typename T>
-class MatrixNumeric : public ::testing::Test {};
-
-using NumericTypes = ::testing::Types<int, double>;
-TYPED_TEST_SUITE(MatrixNumeric, NumericTypes);
-
-TYPED_TEST(MatrixNumeric, DeterminantOf1x1IsTheElement) {
+TYPED_TEST(MatrixTyped, DeterminantOf1x1IsTheElement) {
 	auto m = makeMatrix<TypeParam>(1, 1, {5});
 	EXPECT_EQ(m.getDet(), TypeParam{5});
 }
 
-TYPED_TEST(MatrixNumeric, DeterminantOf2x2) {
+TYPED_TEST(MatrixTyped, DeterminantOf2x2) {
 	auto m = makeMatrix<TypeParam>(2, 2, {1, 2, 3, 4});
 	EXPECT_EQ(m.getDet(), TypeParam{-2});        // 1*4 - 2*3
 }
 
-TYPED_TEST(MatrixNumeric, DeterminantOf3x3) {
+TYPED_TEST(MatrixTyped, DeterminantOf3x3) {
 	auto m = makeMatrix<TypeParam>(3, 3, {6, 1, 1, 4, -2, 5, 2, 8, 7});
 	EXPECT_EQ(m.getDet(), TypeParam{-306});
 }
 
-TYPED_TEST(MatrixNumeric, DeterminantOfSingularMatrixIsZero) {
+TYPED_TEST(MatrixTyped, DeterminantOfSingularMatrixIsZero) {
 	auto m = makeMatrix<TypeParam>(3, 3, {1, 2, 3, 4, 5, 6, 7, 8, 9});
 	EXPECT_EQ(m.getDet(), TypeParam{0});
 }
 
-TYPED_TEST(MatrixNumeric, DeterminantOfNonSquareMatrixThrows) {
+TYPED_TEST(MatrixTyped, DeterminantOfNonSquareMatrixThrows) {
 	Matrix<TypeParam> m(2, 3, TypeParam{1});
 	EXPECT_THROW(m.getDet(), Matrix_size_not_match);
 }
