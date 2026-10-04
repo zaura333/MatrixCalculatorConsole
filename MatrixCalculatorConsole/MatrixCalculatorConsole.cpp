@@ -1,159 +1,296 @@
-﻿#include <iostream>
+﻿#include <array>
+#include <charconv>
+#include <complex>
+#include <cstddef>
+#include <iostream>
+#include <optional>
+#include <string>
+#include <system_error>
 #include "Matrix.h"
 #include "MatrixExceptions.h"
-#include <complex>
 
-int main()
+namespace {
+
+// ---------------------------------------------------------------------------
+// Dane przykladowe
+// ---------------------------------------------------------------------------
+Matrix<double> makeA()
 {
-    std::cout << "---KALKULATOR MACIERZY - PRZYKLADY---\n\n";
-
-    // Tworzenie macierzy
-    std::cout << "\nTworzenie macierzy o jednakowych wymiarach w celu prezentacji dzialan dodawania i odejmowania.\n";
-    std::cout << "Tworzenie macierzy A (2x3)...\n";
     Matrix<double> A(2, 3);
-    std::cout << "Wypelnianie macierzy poprzez modyfikacje poszczegolnych elementow, np. A(1, 1) = 3...\n";
-    try {
-        A(1, 1) = 3;
-        A(1, 2) = 6;
-        A(1, 3) = 1;
-        A(2, 1) = 1;
-        A(2, 2) = 4;
-        A(2, 3) = 2;
+    const double values[] = { 3, 6, 1,
+                              1, 4, 2 };
+    std::size_t k = 0;
+    for (int i = 1; i <= 2; ++i) {
+        for (int j = 1; j <= 3; ++j) {
+            A(i, j) = values[k++];
+        }
     }
-    catch (const IndexOutOfBoundsException& e) {
-        std::cout << "Blad podczas dostepu do elemetnow macierzy:\n" << e.what();
-        return -1;
+    return A;
+}
+
+Matrix<int> makeM()
+{
+    Matrix<int> M(5, 5);
+    const int values[] = {  3,  6,  1,  5,  7,
+                            1,  4,  2,  5,  9,
+                           10,  7, 12, 30, 14,
+                           21, 16, 17, 43,  9,
+                           20, 21, 18,  1, 24 };
+    std::size_t k = 0;
+    for (int i = 1; i <= 5; ++i) {
+        for (int j = 1; j <= 5; ++j) {
+            M(i, j) = values[k++];
+        }
     }
-    std::cout << "Uzupelniona macierz A:\nA\n=\n" << A << '\n';
+    return M;
+}
 
-    std::cout << "\nTworzenie macierzy B (2x3) zainicjalizowej wartoscia 5.2...\n";
-    Matrix<double> B(2, 3, 5.2);
-    std::cout << "Uzupelniona macierz B:\nB\n=\n" << B << '\n';
+// ---------------------------------------------------------------------------
+// Przyklady (mozna uruchamiac w dowolnej kolejnosci)
+// ---------------------------------------------------------------------------
+void demoAddition()
+{
+    std::cout << "\n**DODAWANIE MACIERZY**\n";
+    const Matrix<double> A = makeA();
+    const Matrix<double> B(2, 3, 5.2);
+    std::cout << "Macierz A (2x3):\nA\n=\n" << A << '\n';
+    std::cout << "Macierz B (2x3) zainicjalizowana wartoscia 5.2:\nB\n=\n" << B << '\n';
 
-    std::cout << "\n**DODAWANIE MACIERZY**";
-    Matrix<double> Added;
     try {
-        Added = A + B;
+        const Matrix<double> Added = A + B;
+        std::cout << "\nA + B\n = \n" << Added << '\n';
     }
     catch (const SizeMismatchException& e) {
-        std::cout << "\nBlad podczas dodawania macierzy:\n" << e.what();
-        return -1;
+        std::cout << "\nBlad podczas dodawania macierzy:\n" << e.what() << '\n';
     }
+}
 
-    std::cout << "\nA + B\n = \n" << Added << '\n';
+void demoSubtraction()
+{
+    std::cout << "\n**ODEJMOWANIE MACIERZY**\n";
+    const Matrix<double> A = makeA();
+    const Matrix<double> B(2, 3, 5.2);
+    std::cout << "Macierz A (2x3):\nA\n=\n" << A << '\n';
+    std::cout << "Macierz B (2x3) zainicjalizowana wartoscia 5.2:\nB\n=\n" << B << '\n';
 
-    std::cout << "\n**ODEJMOWANIE MACIERZY**";
-
-    Matrix<double> Subtracted;
     try {
-        Subtracted = A - B;
+        const Matrix<double> Subtracted = A - B;
+        std::cout << "\nA - B\n = \n" << Subtracted << '\n';
     }
     catch (const SizeMismatchException& e) {
-        std::cout << "\nBlad podczas odejmowania macierzy:\n" << e.what();
-        return -1;
+        std::cout << "\nBlad podczas odejmowania macierzy:\n" << e.what() << '\n';
     }
-    std::cout << "\nA - B\n = \n" << Subtracted << '\n';
-    
+}
 
-    std::cout << "\n**MNOZENIE MACIERZY PRZEZ LICZBE**";
-    Matrix<double> NumMultiplied = 4.3 * A;
+void demoScalarMultiplication()
+{
+    std::cout << "\n**MNOZENIE MACIERZY PRZEZ LICZBE**\n";
+    const Matrix<double> A = makeA();
+    std::cout << "Macierz A (2x3):\nA\n=\n" << A << '\n';
+
+    const Matrix<double> NumMultiplied = 4.3 * A;
     std::cout << "\n4.3 * A\n = \n" << NumMultiplied << '\n';
+}
 
-    std::cout << "\nTworzenie macierzy o odpowiednich wymiarach by pomnozyc ja z macierza A...";
-    std::cout << "\nTworzenie macierzy C (3, 5) zainicjalizowej wartoscia 2...\n";
-    Matrix<double> C(3, 5, 2);
-    std::cout << "Uzupelniona macierz C:\nC\n=\n" << C << '\n';
+void demoMatrixMultiplication()
+{
+    std::cout << "\n**MNOZENIE MACIERZY PRZEZ MACIERZ**\n";
+    const Matrix<double> A = makeA();
+    const Matrix<double> C(3, 5, 2);
+    std::cout << "Macierz A (2x3):\nA\n=\n" << A << '\n';
+    std::cout << "Macierz C (3x5) zainicjalizowana wartoscia 2:\nC\n=\n" << C << '\n';
 
-    std::cout << "\n**MNOZENIE MACIERZY PRZEZ MACIERZ**";
-    Matrix<double> MtMultiplied;
     try {
-        MtMultiplied = A * C;
+        const Matrix<double> MtMultiplied = A * C;
+        std::cout << "\nA * C\n = \n" << MtMultiplied << '\n';
     }
     catch (const SizeMismatchException& e) {
-        std::cout << "\nBlad podczas mnozenia macierzy:\n" << e.what();
-        return -1;
+        std::cout << "\nBlad podczas mnozenia macierzy:\n" << e.what() << '\n';
     }
-    std::cout << "\nA * C\n = \n" << MtMultiplied << '\n';
+}
 
-    std::cout << "\n**TRANSPONOWANIE MACIERZY**";
-    Matrix<double> TransposedA = A.transpose();
-    std::cout << "\nTransponowana macierz A:\n" << TransposedA;
+void demoTranspose()
+{
+    std::cout << "\n**TRANSPONOWANIE MACIERZY**\n";
+    const Matrix<double> A = makeA();
+    std::cout << "Macierz A (2x3):\nA\n=\n" << A << '\n';
+    std::cout << "\nTransponowana macierz A:\n" << A.transpose();
+}
 
-    std::cout << "\n**KOPIOWANIE MACIERZY KONSTRUKTOREM KOPIUJĄCYM**";
-    Matrix<double> CopiedA(TransposedA);
+void demoCopy()
+{
+    std::cout << "\n**KOPIOWANIE MACIERZY KONSTRUKTOREM KOPIUJACYM**\n";
+    const Matrix<double> TransposedA = makeA().transpose();
+    const Matrix<double> CopiedA(TransposedA);
     std::cout << "\nSkopiowana transponowana macierz A:\n" << CopiedA;
+}
 
-    //WYWOŁA BŁĄD, bo dozwolone typy to int, double i complex:
-    //Matrix<char> CharMt(2, 4, 'a');
-    //std::cout << CharMt;
+void demoComplex()
+{
+    std::cout << "\n**PRZYKLAD MACIERZY Z LICZBAMI ZESPOLONYMI**\n";
 
-    std::cout << "\n**PRZYKŁAD MACIERZY Z LICZBAMI ZESPOLONYMI**";
-    std::complex<double> c1(4.5, 5.0);
-    Matrix<std::complex<double>> Zespolone(2, 3, c1);
+    const std::complex<double> c1(4.5, 5.0);
+    const Matrix<std::complex<double>> Zespolone(2, 3, c1);
     std::cout << "\nMacierz Zespolone = " << Zespolone << '\n';
 
-    Matrix<std::complex<double>> Zespolone2 = Zespolone;
-    Matrix<std::complex<double>> Zespolone3 = Zespolone + Zespolone2;
+    const Matrix<std::complex<double>> Zespolone2 = Zespolone;
+    const Matrix<std::complex<double>> Zespolone3 = Zespolone + Zespolone2;
     std::cout << "\nZespolone + Zespolone2\n = \n" << Zespolone3 << '\n';
+}
 
-    std::cout << "\n**OBLICZANIE WYZNACZNIKA MACIERZY**";
-    Matrix<int> M(5, 5);
-    try {
-        M(1, 1) = 3;
-        M(1, 2) = 6;
-        M(1, 3) = 1;
-        M(1, 4) = 5;
-        M(1, 5) = 7;
-
-        M(2, 1) = 1;
-        M(2, 2) = 4;
-        M(2, 3) = 2;
-        M(2, 4) = 5;
-        M(2, 5) = 9;
-
-        M(3, 1) = 10;
-        M(3, 2) = 7;
-        M(3, 3) = 12;
-        M(3, 4) = 30;
-        M(3, 5) = 14;
-
-        M(4, 1) = 21;
-        M(4, 2) = 16;
-        M(4, 3) = 17;
-        M(4, 4) = 43;
-        M(4, 5) = 9;
-
-        M(5, 1) = 20;
-        M(5, 2) = 21;
-        M(5, 3) = 18;
-        M(5, 4) = 1;
-        M(5, 5) = 24;
-
-    }
-    catch (const IndexOutOfBoundsException& e) {
-        std::cout << "Blad podczas dostepu do elemetnow macierzy:\n" << e.what();
-        return -1;
-    }
-
+void demoDeterminant()
+{
+    std::cout << "\n**OBLICZANIE WYZNACZNIKA MACIERZY**\n";
+    const Matrix<int> M = makeM();
     std::cout << "\nM\n = \n" << M << '\n';
 
     const auto [mRows, mCols] = M.size();
     std::cout << "Wymiary M: " << mRows << "x" << mCols << '\n';
-    int wyznacznik;
 
     try {
-        wyznacznik = M.getDet();
+        std::cout << "\ndet(M) = " << M.getDet() << '\n';
     }
     catch (const NonSquareMatrixException& e) {
-        std::cout << "\nBlad podczas obliczania wyznacznika. Macierz nie jest kwadratowa:\n" << e.what();
-        return -1;
+        std::cout << "\nBlad podczas obliczania wyznacznika. Macierz nie jest kwadratowa:\n"
+                  << e.what() << '\n';
     }
-    std::cout << "\ndet(M) = " << wyznacznik << '\n';
+}
 
-    // CTAD: typ elementow wywnioskowany przez kompilator
-    Matrix Wnioskowana(2, 2, 1.5);   // Matrix<double>
-    Matrix Calkowita(2, 2, 7);       // Matrix<int>
-    std::cout << "\nCTAD: " << Wnioskowana << Calkowita << '\n';
+void demoDeduction()
+{
+    std::cout << "\n**CTAD - TYP ELEMENTOW WYWNIOSKOWANY PRZEZ KOMPILATOR**\n";
+    const Matrix Wnioskowana(2, 2, 1.5);   // Matrix<double>
+    const Matrix Calkowita(2, 2, 7);       // Matrix<int>
+    std::cout << "\nMatrix(2, 2, 1.5):\n" << Wnioskowana
+              << "\nMatrix(2, 2, 7):\n" << Calkowita << '\n';
+}
 
+void demoExceptions()
+{
+    std::cout << "\n**OBSLUGA WYJATKOW**\n";
+    const Matrix<double> A = makeA();
+    const Matrix<double> C(3, 5, 2);
+
+    try {
+        static_cast<void>(A + C);
+    }
+    catch (const SizeMismatchException& e) {
+        std::cout << "\nA + C (2x3 + 3x5): " << e.what() << '\n';
+    }
+
+    try {
+        static_cast<void>(A(3, 1));
+    }
+    catch (const IndexOutOfBoundsException& e) {
+        std::cout << "\nA(3, 1): " << e.what() << '\n';
+    }
+
+    try {
+        Matrix<double> bad(-1, 2);
+    }
+    catch (const InvalidDimensionException& e) {
+        std::cout << "\nMatrix(-1, 2): " << e.what() << '\n';
+    }
+
+    // Wszystkie wyjatki macierzy dziedzicza po MatrixException, wiec mozna je zlapac razem:
+    try {
+        static_cast<void>(A.getDet());
+    }
+    catch (const MatrixException& e) {
+        std::cout << "\nA.getDet() (macierz 2x3, przechwycona jako MatrixException): " << e.what() << '\n';
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Menu
+// ---------------------------------------------------------------------------
+struct Demo {
+    const char* name;
+    void (*run)();
+};
+
+constexpr std::array demos{
+    Demo{ "Dodawanie macierzy",               demoAddition },
+    Demo{ "Odejmowanie macierzy",             demoSubtraction },
+    Demo{ "Mnozenie macierzy przez liczbe",   demoScalarMultiplication },
+    Demo{ "Mnozenie macierzy przez macierz",  demoMatrixMultiplication },
+    Demo{ "Transponowanie macierzy",          demoTranspose },
+    Demo{ "Kopiowanie macierzy",              demoCopy },
+    Demo{ "Macierze z liczbami zespolonymi",  demoComplex },
+    Demo{ "Wyznacznik macierzy",              demoDeterminant },
+    Demo{ "CTAD (wnioskowanie typu)",         demoDeduction },
+    Demo{ "Obsluga wyjatkow",                 demoExceptions },
+};
+
+void printMenu()
+{
+    std::cout << "\n===== KALKULATOR MACIERZY - MENU =====\n";
+    for (std::size_t i = 0; i < demos.size(); ++i) {
+        const auto& [name, run] = demos[i];
+        std::cout << "  " << (i + 1) << ". " << name << '\n';
+    }
+    std::cout << "  a. Uruchom wszystkie po kolei\n"
+              << "  0. Wyjscie\n"
+              << "Wybor: ";
+}
+
+void runAll()
+{
+    for (const auto& demo : demos) {
+        demo.run();
+    }
+}
+
+std::optional<std::size_t> parseChoice(std::string text)
+{
+    const char* whitespace = " \t\r\n";
+    text.erase(text.find_last_not_of(whitespace) + 1);
+    text.erase(0, text.find_first_not_of(whitespace));
+
+    std::size_t value = 0;
+    const char* first = text.data();
+    const char* last = first + text.size();
+    const auto [ptr, ec] = std::from_chars(first, last, value);
+    if (ec != std::errc{} || ptr != last) {
+        return std::nullopt;
+    }
+    return value;
+}
+
+} // namespace
+
+int main()
+{
+    std::cout << "---KALKULATOR MACIERZY - PRZYKLADY---\n";
+
+    std::string line;
+    while (true) {
+        printMenu();
+        if (!std::getline(std::cin, line)) {
+            std::cout << '\n';
+            break;   // koniec wejscia (EOF)
+        }
+
+        if (line == "a" || line == "A") {
+            runAll();
+            continue;
+        }
+
+        const auto choice = parseChoice(line);
+        if (!choice) {
+            std::cout << "Nieprawidlowy wybor. Podaj numer z menu, 'a' lub 0.\n";
+        }
+        else if (*choice == 0) {
+            break;
+        }
+        else if (*choice <= demos.size()) {
+            demos[*choice - 1].run();
+        }
+        else {
+            std::cout << "Nie ma takiej pozycji w menu.\n";
+        }
+    }
+
+    std::cout << "Do widzenia!\n";
     return 0;
 }
