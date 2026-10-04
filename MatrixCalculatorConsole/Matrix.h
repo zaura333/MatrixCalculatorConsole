@@ -213,7 +213,7 @@ T Matrix<T>::getDet()
 			}
 		}
 
-		int sign = ((col % 2) == 1) ? 1 : -1;
+		const T sign = ((col % 2) == 1) ? 1 : -1;
 		res += sign * (*this)(1, col) * subMat.getDet();
 	}
 
