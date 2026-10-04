@@ -203,7 +203,15 @@ std::ostream& operator<<(std::ostream& os, const Matrix<T>& mt)
 	os << "\n[\n";
 	for (int i = 1; i <= mt.rows; i++) {
 		for (int j = 1; j <= mt.columns; j++) {
-			os << '\t' << mt(i, j);
+			os << '\t';
+			if constexpr (std::is_same_v<T, std::complex<double>>) {
+				// zespolone: a+bi zamiast domyslnego (a,b)
+				const auto& z = mt(i, j);
+				os << z.real() << (z.imag() < 0 ? "-" : "+") << std::abs(z.imag()) << 'i';
+			}
+			else {
+				os << mt(i, j);
+			}
 		}
 		os << '\n';
 	}

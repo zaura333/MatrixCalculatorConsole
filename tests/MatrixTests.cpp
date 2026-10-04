@@ -204,6 +204,20 @@ TEST(MatrixOutput, PrintsRowsSeparatedByNewlines) {
 	EXPECT_EQ(os.str(), "\n[\n\t1\t2\n\t3\t4\n]\n");
 }
 
+TEST(MatrixOutput, PrintsDoubles) {
+	auto m = makeMatrix<double>(1, 2, {1.5, -2.25});
+	std::ostringstream os;
+	os << m;
+	EXPECT_EQ(os.str(), "\n[\n\t1.5\t-2.25\n]\n");
+}
+
+TEST(MatrixOutput, PrintsComplexAsAPlusBi) {
+	auto m = makeMatrix<std::complex<double>>(1, 2, {{1, 2}, {3, -4}});
+	std::ostringstream os;
+	os << m;
+	EXPECT_EQ(os.str(), "\n[\n\t1+2i\t3-4i\n]\n");
+}
+
 // ---------------------------------------------------------------------------
 // Kopiowanie i przenoszenie
 // ---------------------------------------------------------------------------
