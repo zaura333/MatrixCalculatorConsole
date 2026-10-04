@@ -205,7 +205,7 @@ TEST(MatrixOutput, PrintsRowsSeparatedByNewlines) {
 }
 
 // ---------------------------------------------------------------------------
-// Kopiowanie i przenoszenie (krok 10: Rule of Zero, std::vector)
+// Kopiowanie i przenoszenie
 // ---------------------------------------------------------------------------
 TYPED_TEST(MatrixTyped, NewMatrixIsZeroFilled) {
 	Matrix<TypeParam> m(5, 3);
@@ -229,6 +229,26 @@ TYPED_TEST(MatrixTyped, CopyConstructorMakesIndependentCopy) {
 	b(1, 1) = TypeParam{9};
 	expectMatrixEq<TypeParam>(a, 2, 2, {1, 2, 3, 4});   // oryginal bez zmian
 	expectMatrixEq<TypeParam>(b, 2, 2, {9, 2, 3, 4});
+}
+
+TYPED_TEST(MatrixTyped, CopyConstructorPreservesNonSquareDimensions) {
+	auto a = makeMatrix<TypeParam>(2, 3, {1, 2, 3, 4, 5, 6});
+	Matrix<TypeParam> b(a);
+	expectMatrixEq<TypeParam>(b, 2, 3, {1, 2, 3, 4, 5, 6});
+	EXPECT_THROW(b(3, 1), IndexOutOfBoundsException);   // wierszy nadal 2
+	EXPECT_THROW(b(1, 4), IndexOutOfBoundsException);   // kolumn nadal 3
+}
+
+TEST(MatrixCopy, CopyOfEmptyMatrixIsEmpty) {
+	Matrix<int> a;
+	Matrix<int> b(a);
+	EXPECT_THROW(b(1, 1), IndexOutOfBoundsException);
+}
+
+TEST(MatrixCopy, CopyOfConstMatrix) {
+	const Matrix<int> a(2, 2, 4);
+	Matrix<int> b(a);
+	EXPECT_EQ(b(2, 2), 4);
 }
 
 TYPED_TEST(MatrixTyped, CopyAssignmentMakesIndependentCopyAndChangesSize) {
