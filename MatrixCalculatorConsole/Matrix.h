@@ -37,17 +37,18 @@ private:
 	int rows, columns;
 	std::vector<T> data;
 	std::size_t index(int x, int y) const noexcept;
+	static std::size_t checkedSize(int r, int c);
 };
 
 template<typename T>
 Matrix<T>::Matrix(int r, int c)
-	: rows(r), columns(c), data(static_cast<std::size_t>(r) * static_cast<std::size_t>(c)) {
+	: rows(r), columns(c), data(checkedSize(r, c)) {
 	// vector value-inicjalizuje elementy: 0, 0.0 lub (0,0)
 }
 
 template<typename T>
 Matrix<T>::Matrix(int r, int c, T initial)
-	: rows(r), columns(c), data(static_cast<std::size_t>(r) * static_cast<std::size_t>(c), initial) {
+	: rows(r), columns(c), data(checkedSize(r, c), initial) {
 }
 
 template<typename T>
@@ -222,4 +223,14 @@ template<typename U>
 inline Matrix<U> operator*(U n, Matrix<U>& mt)
 {
 	return mt * n;
+}
+
+template<typename T>
+std::size_t Matrix<T>::checkedSize(int r, int c)
+{
+	if (r < 0 || c < 0) {
+		throw InvalidDimensionException("Error: Matrix dimensions must not be negative.");
+	}
+
+	return static_cast<std::size_t>(r) * static_cast<std::size_t>(c);
 }

@@ -275,3 +275,43 @@ TYPED_TEST(MatrixTyped, SurvivesStoringInGrowingVector) {
 		EXPECT_EQ(matrices[static_cast<std::size_t>(n - 1)](1, 1), TypeParam(n));
 	}
 }
+
+// ---------------------------------------------------------------------------
+// Walidacja wymiarow
+// ---------------------------------------------------------------------------
+static_assert(std::is_base_of_v<MatrixException, InvalidDimensionException>);
+
+TEST(MatrixDimensions, NegativeRowsThrow) {
+	EXPECT_THROW(Matrix<int>(-1, 3), InvalidDimensionException);
+}
+
+TEST(MatrixDimensions, NegativeColumnsThrow) {
+	EXPECT_THROW(Matrix<int>(3, -1), InvalidDimensionException);
+}
+
+TEST(MatrixDimensions, NegativeRowsAndColumnsThrow) {
+	EXPECT_THROW(Matrix<int>(-2, -2), InvalidDimensionException);
+}
+
+TEST(MatrixDimensions, NegativeDimensionsThrowWithInitialValueConstructor) {
+	EXPECT_THROW(Matrix<int>(-1, 3, 5), InvalidDimensionException);
+	EXPECT_THROW(Matrix<double>(3, -1, 5.0), InvalidDimensionException);
+}
+
+TEST(MatrixDimensions, InvalidDimensionIsCatchableAsMatrixException) {
+	EXPECT_THROW(Matrix<int>(-1, 1), MatrixException);
+}
+
+TEST(MatrixDimensions, ZeroDimensionsAreAllowed) {
+	EXPECT_NO_THROW(Matrix<int>(0, 0));
+	EXPECT_NO_THROW(Matrix<int>(0, 5));
+	EXPECT_NO_THROW(Matrix<int>(5, 0));
+	EXPECT_NO_THROW(Matrix<int>(0, 5, 1));
+}
+
+TEST(MatrixDimensions, MatrixWithZeroDimensionHasNoElements) {
+	Matrix<int> noRows(0, 5);
+	Matrix<int> noColumns(5, 0);
+	EXPECT_THROW(noRows(1, 1), IndexOutOfBoundsException);
+	EXPECT_THROW(noColumns(1, 1), IndexOutOfBoundsException);
+}
