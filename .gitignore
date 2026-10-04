@@ -369,3 +369,4 @@ FodyWeavers.xsd
 # CMake
 build/
 out/
+build-san/ # for build with sanitizers option

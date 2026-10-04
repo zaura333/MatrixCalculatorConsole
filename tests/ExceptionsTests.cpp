@@ -16,7 +16,7 @@ TEST(MatrixExceptions, AdditionOfDifferentSizesThrowsSizeMismatch) {
 
 TEST(MatrixExceptions, DeterminantOfNonSquareThrowsNonSquare) {
 	Matrix<int> m(2, 3, 0);
-	EXPECT_THROW(m.getDet(), NonSquareMatrixException);
+	EXPECT_THROW(static_cast<void>(m.getDet()), NonSquareMatrixException);
 }
 
 TEST(MatrixExceptions, BadIndexThrowsIndexOutOfBounds) {
@@ -27,7 +27,7 @@ TEST(MatrixExceptions, BadIndexThrowsIndexOutOfBounds) {
 TEST(MatrixExceptions, AllErrorsCatchableAsMatrixException) {
 	Matrix<int> a(2, 3, 0), b(3, 2, 0);
 	EXPECT_THROW(static_cast<void>(a + b), MatrixException);
-	EXPECT_THROW(a.getDet(), MatrixException);
+	EXPECT_THROW(static_cast<void>(a.getDet()), MatrixException);
 	EXPECT_THROW(a(5, 5), MatrixException);
 }
 

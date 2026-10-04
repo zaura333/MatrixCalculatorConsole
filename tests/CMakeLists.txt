@@ -4,7 +4,7 @@ FetchContent_Declare(googletest
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-add_executable(matrix_tests "SmokeTests.cpp" "MatrixTests.cpp")
+add_executable(matrix_tests "SmokeTests.cpp" "MatrixTests.cpp" "ExceptionsTests.cpp")
 target_link_libraries(matrix_tests PRIVATE matrix GTest::gtest_main)
 
 include(GoogleTest)

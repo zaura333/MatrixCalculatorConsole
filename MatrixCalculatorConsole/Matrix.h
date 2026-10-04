@@ -4,6 +4,9 @@
 #include <ostream>
 #include <complex>
 #include <type_traits>
+#include <vector>
+#include <cstddef>
+#include <utility>
 #include "MatrixExceptions.h"
 
 template<typename T>
@@ -14,96 +17,66 @@ public:
         std::is_same_v<T, int> ||
         std::is_same_v<T, double> ||
         std::is_same_v<T, std::complex<double>>,
-        "Matrix<T>: T może być tylko int, double lub std::complex<double>"
+        "Matrix<T>: T must be int, double or std::complex<double>"
     );
 	Matrix(int r = 0, int c = 0);
 	Matrix(int r, int c, T initial);
-	Matrix(const Matrix<T>& mt);
 	T& operator()(int x, int y);
 	const T& operator()(int x, int y) const;
 	template<typename U>
 	friend std::ostream& operator<<(std::ostream& os, const Matrix<U>& mt);
-	Matrix<T>& operator=(const Matrix& toCopy);
-	Matrix<T> operator+(Matrix<T>& mt);
-	Matrix<T> operator-(Matrix<T>& mt);
-	Matrix<T> operator*(T n);
+	[[nodiscard]] Matrix<T> operator+(const Matrix<T>& mt) const;
+	[[nodiscard]] Matrix<T> operator-(const Matrix<T>& mt) const;
+	[[nodiscard]] Matrix<T> operator*(T n) const;
 	template<typename U>
-	friend Matrix<U> operator*(U n, Matrix<U>& mt);
-	Matrix<T> operator*(Matrix& mt);
-	Matrix<T> transpose();
-	T getDet();
-	~Matrix();
+	friend Matrix<U> operator*(U n, const Matrix<U>& mt);
+	[[nodiscard]] Matrix<T> operator*(const Matrix& mt) const;
+	[[nodiscard]] Matrix<T> transpose() const;
+	[[nodiscard]] T getDet() const;
+	[[nodiscard]] std::pair<int, int> size() const noexcept;
+
 private:
 	int rows, columns;
-	T** data;
-	void freeDataMemory() const;
-	void copyData(const Matrix<T>& mt);
+	std::vector<T> data;
+	std::size_t index(int x, int y) const noexcept;
+	void checkBounds(int x, int y) const;
+	static std::size_t checkedSize(int r, int c);
 };
 
-template<typename T>
-Matrix<T>::Matrix(int r, int c) : rows(r), columns(c) {
-	data = new T * [rows];
+// ---------------------------------------------------------------------------
+// Deduction guides (CTAD, C++17)
+// By default T is deduced from the `initial` argument: Matrix(2, 3, 1.5) -> Matrix<double>.
+// The guide below handles the one case where the default deduction would fail.
+// ---------------------------------------------------------------------------
 
-	for (int i = 0; i < rows; i++) {
-		data[i] = new T[columns];
-	}
+// float is not an allowed T (static_assert) -> deduce double instead.
+Matrix(int, int, float) -> Matrix<double>;
+
+template<typename T>
+Matrix<T>::Matrix(int r, int c)
+	: rows(r), columns(c), data(checkedSize(r, c)) {
+	// std::vector value-initialises the elements: 0, 0.0 or (0,0)
 }
 
 template<typename T>
-Matrix<T>::Matrix(int r, int c, T initial) : rows(r), columns(c) {
-	data = new T * [rows];
-
-	for (int i = 0; i < rows; i++) {
-		data[i] = new T[columns];
-
-		for (int j = 0; j < columns; j++) {
-			data[i][j] = initial;
-		}
-	}
-}
-
-template<typename T>
-Matrix<T>::Matrix(const Matrix<T>& mt)
-{
-	this->rows = mt.rows;
-	this->columns = mt.columns;
-	copyData(mt);
+Matrix<T>::Matrix(int r, int c, T initial)
+	: rows(r), columns(c), data(checkedSize(r, c), initial) {
 }
 
 template<typename T>
 T& Matrix<T>::operator()(int x, int y) {
-	if (x > rows || x <= 0 || y > columns || y <= 0) {
-		throw IndexOutOfBoundsException("Error: Indices out of bounds of the matrix.");
-	}
-
-	return data[x - 1][y - 1];
+	checkBounds(x, y);
+	return data[index(x, y)];
 }
 
 template<typename T>
 const T& Matrix<T>::operator()(int x, int y) const {
-	if (x > rows || x <= 0 || y > columns || y <= 0) {
-		throw IndexOutOfBoundsException("Error: Indices out of bounds of the matrix.");
-	}
-
-	return data[x - 1][y - 1];
+	checkBounds(x, y);
+	return data[index(x, y)];
 }
 
 template<typename T>
-Matrix<T>& Matrix<T>::operator=(const Matrix<T>& toCopy)
-{
-	if (this == &toCopy) {
-		return *this;
-	}
-
-	freeDataMemory();
-
-	copyData(toCopy);
-
-	return *this;
-}
-
-template<typename T>
-Matrix<T> Matrix<T>::operator+(Matrix<T>& mt) {
+Matrix<T> Matrix<T>::operator+(const Matrix<T>& mt) const {
 	if (mt.rows != rows || mt.columns != columns) {
 		throw SizeMismatchException("Error: Matrix sizes must match to perform addition.");
 	}
@@ -120,7 +93,7 @@ Matrix<T> Matrix<T>::operator+(Matrix<T>& mt) {
 }
 
 template<typename T>
-Matrix<T> Matrix<T>::operator-(Matrix<T>& mt)
+Matrix<T> Matrix<T>::operator-(const Matrix<T>& mt) const
 {
 	if (mt.rows != rows || mt.columns != columns) {
 		throw SizeMismatchException("Error: Matrix sizes must match to perform subtraction.");
@@ -138,7 +111,7 @@ Matrix<T> Matrix<T>::operator-(Matrix<T>& mt)
 }
 
 template<typename T>
-Matrix<T> Matrix<T>::operator*(T n)
+Matrix<T> Matrix<T>::operator*(T n) const
 {
 	Matrix result(rows, columns);
 
@@ -152,7 +125,7 @@ Matrix<T> Matrix<T>::operator*(T n)
 }
 
 template<typename T>
-Matrix<T> Matrix<T>::operator*(Matrix<T>& mt)
+Matrix<T> Matrix<T>::operator*(const Matrix<T>& mt) const
 {
 	if (columns != mt.rows) {
 		throw SizeMismatchException("Error: Number of rows of the first matrix must be equal to the number of columns of the second matrix.");
@@ -167,8 +140,6 @@ Matrix<T> Matrix<T>::operator*(Matrix<T>& mt)
 			T element = 0;
 
 			for (int k = 1; k <= common; k++) {
-				T a = this->operator()(i, k);
-				T b = mt(k, j);
 				element += (this->operator()(i, k) * mt(k, j));
 			}
 
@@ -180,7 +151,7 @@ Matrix<T> Matrix<T>::operator*(Matrix<T>& mt)
 }
 
 template<typename T>
-Matrix<T> Matrix<T>::transpose()
+Matrix<T> Matrix<T>::transpose() const
 {
 	Matrix result(columns, rows);
 
@@ -194,7 +165,7 @@ Matrix<T> Matrix<T>::transpose()
 }
 
 template<typename T>
-T Matrix<T>::getDet()
+T Matrix<T>::getDet() const
 {
 	if (rows != columns) {
 		throw NonSquareMatrixException("Error: Matrix must be square to calculate determinant.");
@@ -230,44 +201,35 @@ T Matrix<T>::getDet()
 	return res;
 }
 
-
 template<typename T>
-Matrix<T>::~Matrix() {
-	freeDataMemory();
+std::pair<int, int> Matrix<T>::size() const noexcept
+{
+	return { rows, columns };
 }
 
 template<typename T>
-void Matrix<T>::freeDataMemory() const
+std::size_t Matrix<T>::index(int x, int y) const noexcept
 {
-	for (int i = 0; i < rows; i++) {
-		delete[] data[i];
-	}
-	delete[] data;
-}
-
-template<typename T>
-inline void Matrix<T>::copyData(const Matrix<T>& mt)
-{
-	rows = mt.rows;
-	columns = mt.columns;
-
-	data = new T * [rows];
-
-	for (int i = 0; i < rows; i++) {
-		data[i] = new T[columns];
-		for (int j = 0; j < columns; j++) {
-			data[i][j] = mt.data[i][j];
-		}
-	}
+	return static_cast<std::size_t>(x - 1) * static_cast<std::size_t>(columns)
+		+ static_cast<std::size_t>(y - 1);
 }
 
 template<typename T>
 std::ostream& operator<<(std::ostream& os, const Matrix<T>& mt)
 {
+	const auto [r, c] = mt.size();
 	os << "\n[\n";
-	for (int i = 1; i <= mt.rows; i++) {
-		for (int j = 1; j <= mt.columns; j++) {
-			os << '\t' << mt(i, j);
+	for (int i = 1; i <= r; i++) {
+		for (int j = 1; j <= c; j++) {
+			os << '\t';
+			if constexpr (std::is_same_v<T, std::complex<double>>) {
+				// complex: print a+bi instead of the default (a,b)
+				const auto& z = mt(i, j);
+				os << z.real() << (z.imag() < 0 ? "-" : "+") << std::abs(z.imag()) << 'i';
+			}
+			else {
+				os << mt(i, j);
+			}
 		}
 		os << '\n';
 	}
@@ -277,7 +239,25 @@ std::ostream& operator<<(std::ostream& os, const Matrix<T>& mt)
 }
 
 template<typename U>
-inline Matrix<U> operator*(U n, Matrix<U>& mt)
+[[nodiscard]] inline Matrix<U> operator*(U n, const Matrix<U>& mt)
 {
 	return mt * n;
+}
+
+template<typename T>
+std::size_t Matrix<T>::checkedSize(int r, int c)
+{
+	if (r < 0 || c < 0) {
+		throw InvalidDimensionException("Error: Matrix dimensions must not be negative.");
+	}
+
+	return static_cast<std::size_t>(r) * static_cast<std::size_t>(c);
+}
+
+template<typename T>
+void Matrix<T>::checkBounds(int x, int y) const
+{
+	if (x > rows || x <= 0 || y > columns || y <= 0) {
+		throw IndexOutOfBoundsException("Error: Indices out of bounds of the matrix.");
+	}
 }

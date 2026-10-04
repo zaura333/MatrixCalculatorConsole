@@ -21,3 +21,8 @@ class IndexOutOfBoundsException : public MatrixException {
 public:
 	using MatrixException::MatrixException;
 };
+
+class InvalidDimensionException : public MatrixException {
+public:
+	using MatrixException::MatrixException;
+};
