@@ -17,3 +17,6 @@ endif()
 
 add_executable(MatrixCalculatorConsole MatrixCalculatorConsole/MatrixCalculatorConsole.cpp)
 target_link_libraries(MatrixCalculatorConsole PRIVATE matrix)
+
+enable_testing()
+add_subdirectory(tests)
